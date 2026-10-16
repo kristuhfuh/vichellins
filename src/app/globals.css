@@ -1,0 +1,64 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #0b1220;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+
+  /* Marine blue: 700 is the brand primary (10:1 on white) */
+  --color-marine-50: #eef4fb;
+  --color-marine-100: #d9e6f5;
+  --color-marine-200: #b5cdea;
+  --color-marine-300: #86abd9;
+  --color-marine-400: #5584c3;
+  --color-marine-500: #2f63a8;
+  --color-marine-600: #1a4e92;
+  --color-marine-700: #0f3f7a;
+  --color-marine-800: #0a2e5c;
+  --color-marine-900: #071e3d;
+  --color-marine-950: #040f20;
+
+  /* Gold: 400 is a fill (pair with marine-900 text); 700 is the only gold safe for text on white */
+  --color-gold-100: #fbf1d3;
+  --color-gold-200: #f5e0a0;
+  --color-gold-300: #ecc965;
+  --color-gold-400: #dfb23a;
+  --color-gold-500: #c99a22;
+  --color-gold-600: #a67c14;
+  --color-gold-700: #8a6a12;
+
+  --color-surface: #f4f5f7;
+  --color-line: #e6e8ec;
+  --color-muted: #5b6472;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-gold-500);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  * {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
