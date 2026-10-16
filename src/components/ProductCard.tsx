@@ -41,7 +41,7 @@ export function ProductCard({ product }: { product: Product }) {
 
   return (
     <article className="group flex flex-col">
-      <Link href={href} className="relative block aspect-square overflow-hidden rounded-3xl bg-surface">
+      <Link href={href} aria-label={`${product.name}${soldOut ? " – out of stock" : ""}`} className="relative block aspect-square overflow-hidden rounded-3xl bg-surface">
         <div className="absolute left-3 top-3 z-10 flex gap-1.5">
           {product.condition !== "new" && (
             <span className="rounded-full bg-gold-400 px-2.5 py-1 text-[11px] font-semibold capitalize text-marine-900">

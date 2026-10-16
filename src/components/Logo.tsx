@@ -5,7 +5,7 @@ export function LogoMark({ className = "h-8 w-8" }: { className?: string }) {
   return (
     <svg viewBox="0 0 32 32" className={className} aria-hidden="true">
       <rect width="32" height="32" rx="9" className="fill-marine-700" />
-      <path d="M8 9l8 15 8-15" fill="none" stroke="#dfb23a" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M8 9l8 15 8-15" fill="none" stroke="#f5c800" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }

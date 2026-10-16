@@ -3,7 +3,11 @@
 import Link from "next/link";
 import { ProductVisual } from "@/components/ProductVisual";
 import { removeFromCart, setQty, useCart } from "@/lib/cart-store";
+import { deliveryZones } from "@/lib/config";
 import { formatPrice } from "@/lib/format";
+
+const minFee = Math.min(...deliveryZones.map((z) => z.fee));
+const maxFee = Math.max(...deliveryZones.map((z) => z.fee));
 
 export default function CartPage() {
   const { items, subtotal, count } = useCart();
@@ -42,10 +46,10 @@ export default function CartPage() {
                   <p className="mt-1 text-sm text-marine-900">{formatPrice(item.price)}</p>
                 </div>
                 <div className="mt-3 flex items-center gap-4 sm:mt-0 sm:flex-col sm:items-end sm:gap-3">
-                  <div className="flex h-10 items-center rounded-full border border-line" role="group" aria-label={`Quantity for ${item.name}`}>
-                    <button type="button" onClick={() => setQty(item.variantId, item.qty - 1)} aria-label="Decrease quantity" className="h-10 w-9 text-marine-900">−</button>
+                  <div className="flex h-11 items-center rounded-full border border-line" role="group" aria-label={`Quantity for ${item.name}`}>
+                    <button type="button" onClick={() => setQty(item.variantId, item.qty - 1)} aria-label="Decrease quantity" className="h-11 w-11 text-marine-900">−</button>
                     <span className="w-7 text-center text-sm font-semibold">{item.qty}</span>
-                    <button type="button" onClick={() => setQty(item.variantId, item.qty + 1)} disabled={item.qty >= item.maxQty} aria-label="Increase quantity" className="h-10 w-9 text-marine-900 disabled:opacity-30">+</button>
+                    <button type="button" onClick={() => setQty(item.variantId, item.qty + 1)} disabled={item.qty >= item.maxQty} aria-label="Increase quantity" className="h-11 w-11 text-marine-900 disabled:opacity-30">+</button>
                   </div>
                   <p className="text-sm font-semibold text-marine-900">{formatPrice(item.price * item.qty)}</p>
                   <button type="button" onClick={() => removeFromCart(item.variantId)} className="text-xs text-muted underline hover:text-marine-900">
@@ -66,7 +70,7 @@ export default function CartPage() {
             </div>
             <div className="flex justify-between">
               <dt className="text-muted">Delivery</dt>
-              <dd className="text-muted">Chosen at checkout</dd>
+              <dd className="text-muted">{formatPrice(minFee)}–{formatPrice(maxFee)}</dd>
             </div>
           </dl>
           <Link href="/checkout" className="mt-6 flex h-12 items-center justify-center rounded-full bg-marine-700 text-sm font-semibold text-white hover:bg-marine-800">

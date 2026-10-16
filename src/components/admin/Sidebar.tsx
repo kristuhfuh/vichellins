@@ -29,6 +29,10 @@ const groups: { title: string; items: Item[] }[] = [
     ],
   },
   {
+    title: "Content",
+    items: [{ href: "/admin/homepage", label: "Homepage", roles: all }],
+  },
+  {
     title: "Shop",
     items: [
       { href: "/admin/delivery", label: "Delivery zones", roles: commerce },
@@ -56,7 +60,7 @@ export function Sidebar({ name, role }: { name: string; role: Role }) {
                   <Link
                     href={i.href}
                     aria-current={isActive(i.href) ? "page" : undefined}
-                    className={`block rounded-lg px-3 py-2 text-sm ${isActive(i.href) ? "bg-marine-700 font-semibold text-white" : "text-marine-100 hover:bg-marine-800"}`}
+                    className={`block min-h-[44px] rounded-lg px-3 py-2.5 text-sm ${isActive(i.href) ? "bg-marine-700 font-semibold text-white" : "text-marine-100 hover:bg-marine-800"}`}
                   >
                     {i.label}
                   </Link>
@@ -74,14 +78,14 @@ export function Sidebar({ name, role }: { name: string; role: Role }) {
       <p className="truncate px-3 text-sm font-medium text-white">{name}</p>
       <p className="px-3 text-xs capitalize text-marine-300">{role}</p>
       <div className="mt-2 flex flex-col">
-        <Link href="/admin/account" className="rounded-lg px-3 py-2 text-sm text-marine-100 hover:bg-marine-800">
+        <Link href="/admin/account" className="block min-h-[44px] rounded-lg px-3 py-2.5 text-sm text-marine-100 hover:bg-marine-800">
           Account
         </Link>
-        <Link href="/" target="_blank" className="rounded-lg px-3 py-2 text-sm text-marine-100 hover:bg-marine-800">
+        <Link href="/" target="_blank" className="block min-h-[44px] rounded-lg px-3 py-2.5 text-sm text-marine-100 hover:bg-marine-800">
           View shop ↗
         </Link>
         <form action={signOut}>
-          <button type="submit" className="w-full rounded-lg px-3 py-2 text-left text-sm text-marine-100 hover:bg-marine-800">
+          <button type="submit" className="min-h-[44px] w-full rounded-lg px-3 py-2.5 text-left text-sm text-marine-100 hover:bg-marine-800">
             Sign out
           </button>
         </form>
@@ -91,7 +95,7 @@ export function Sidebar({ name, role }: { name: string; role: Role }) {
 
   return (
     <>
-      <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col justify-between overflow-y-auto bg-marine-900 p-4 lg:flex">
+      <aside className="sticky top-5 hidden h-[calc(100vh-2.5rem)] w-64 shrink-0 flex-col justify-between overflow-y-auto rounded-2xl bg-marine-900 p-4 shadow-2xl [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:flex">
         <div className="space-y-8">
           <div className="px-1 pt-1">
             <Logo inverted />
@@ -101,10 +105,10 @@ export function Sidebar({ name, role }: { name: string; role: Role }) {
         {account}
       </aside>
 
-      <header className="sticky top-0 z-30 flex items-center justify-between bg-marine-900 px-4 py-3 lg:hidden">
+      <header className="sticky top-3 z-30 mx-3 mb-3 flex items-center justify-between rounded-xl bg-marine-900 px-4 py-3 shadow-lg lg:hidden">
         <Logo inverted />
         <details className="relative">
-          <summary className="cursor-pointer list-none rounded-lg px-3 py-2 text-sm font-medium text-white [&::-webkit-details-marker]:hidden">
+          <summary className="flex min-h-[44px] cursor-pointer list-none items-center rounded-lg px-3 text-sm font-medium text-white [&::-webkit-details-marker]:hidden">
             Menu
           </summary>
           <div className="absolute right-0 top-12 max-h-[80vh] w-72 space-y-6 overflow-y-auto rounded-2xl bg-marine-900 p-4 shadow-xl ring-1 ring-marine-700">

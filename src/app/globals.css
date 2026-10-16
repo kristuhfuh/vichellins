@@ -11,27 +11,42 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 
-  /* Marine blue: 700 is the brand primary (10:1 on white) */
-  --color-marine-50: #eef4fb;
-  --color-marine-100: #d9e6f5;
-  --color-marine-200: #b5cdea;
-  --color-marine-300: #86abd9;
-  --color-marine-400: #5584c3;
-  --color-marine-500: #2f63a8;
-  --color-marine-600: #1a4e92;
-  --color-marine-700: #0f3f7a;
-  --color-marine-800: #0a2e5c;
-  --color-marine-900: #071e3d;
-  --color-marine-950: #040f20;
+  /* Marine blue: matches logo royal blue; 700 is the brand primary (12:1 on white) */
+  --color-marine-50: #eeeeff;
+  --color-marine-100: #d0d0fc;
+  --color-marine-200: #a5a5f8;
+  --color-marine-300: #7272f4;
+  --color-marine-400: #4848ec;
+  --color-marine-500: #2828da;
+  --color-marine-600: #1a1ac6;
+  --color-marine-700: #1212b0;
+  --color-marine-800: #0e0e8e;
+  --color-marine-900: #090970;
+  --color-marine-950: #060650;
 
-  /* Gold: 400 is a fill (pair with marine-900 text); 700 is the only gold safe for text on white */
-  --color-gold-100: #fbf1d3;
-  --color-gold-200: #f5e0a0;
-  --color-gold-300: #ecc965;
-  --color-gold-400: #dfb23a;
-  --color-gold-500: #c99a22;
-  --color-gold-600: #a67c14;
-  --color-gold-700: #8a6a12;
+  /* Gold: matches logo bright gold; 400 is a fill; 700 is safe for text on white (7:1) */
+  --color-gold-100: #fff8d0;
+  --color-gold-200: #ffee9e;
+  --color-gold-300: #ffe05a;
+  --color-gold-400: #f5c800;
+  --color-gold-500: #d4aa00;
+  --color-gold-600: #a88800;
+  --color-gold-700: #6b5500;
+
+  /* Success and danger semantic colours */
+  --color-success-50: #f0fdf4;
+  --color-success-100: #dcfce7;
+  --color-success-200: #bbf7d0;
+  --color-success-700: #15803d;
+  --color-success-800: #166534;
+  --color-success-900: #14532d;
+
+  --color-danger-50: #fff1f2;
+  --color-danger-100: #ffe4e6;
+  --color-danger-200: #fecdd3;
+  --color-danger-700: #be123c;
+  --color-danger-800: #9f1239;
+  --color-danger-900: #881337;
 
   --color-surface: #f4f5f7;
   --color-line: #e6e8ec;

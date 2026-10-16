@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { brands, categories, products, specDefinitions } from "./sample-data";
 import type {
   Brand,
@@ -20,9 +21,9 @@ export function getCategories(): Category[] {
   return categories;
 }
 
-export function getTopCategories(): Category[] {
+export const getTopCategories = cache((): Category[] => {
   return categories.filter((c) => c.parentId === null);
-}
+});
 
 export function getChildCategories(parentId: string): Category[] {
   return categories.filter((c) => c.parentId === parentId);

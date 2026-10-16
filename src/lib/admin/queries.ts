@@ -118,6 +118,34 @@ export function inheritedSpecs(categories: CategoryRow[], defs: SpecDefRow[], ca
   return [...byKey.values()].sort((a, b) => a.sort_order - b.sort_order || a.label.localeCompare(b.label));
 }
 
+export type HomepageContent = {
+  hero_headline: string;
+  hero_accent: string;
+  hero_sub: string;
+  trust: Array<{ title: string; body: string }>;
+};
+
+export const defaultHomepageContent: HomepageContent = {
+  hero_headline: "Phones, laptops, audio and more —",
+  hero_accent: "all genuine, delivered fast.",
+  hero_sub: "Real products, real warranties, same-day delivery across Lagos. And we're always a WhatsApp message away.",
+  trust: [
+    { title: "Genuine products", body: "Every item is checked and verified before it is listed." },
+    { title: "Warranty included", body: "Manufacturer or store warranty, clearly stated on each product." },
+    { title: "Lagos delivery", body: "Same-day delivery on the mainland and island for most orders." },
+    { title: "Inspect, then pay", body: "Choose pay on delivery and check your item first." },
+  ],
+};
+
+export async function loadHomepageContent(supabase: SupabaseClient): Promise<HomepageContent> {
+  const { data } = await supabase
+    .from("site_settings")
+    .select("value")
+    .eq("key", "homepage")
+    .maybeSingle();
+  return (data?.value as HomepageContent) ?? defaultHomepageContent;
+}
+
 export type OptionOrder = Map<string, string[]>;
 
 /** Option names per product in display order, used to label variants like "256GB / Black". */

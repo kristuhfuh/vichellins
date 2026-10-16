@@ -36,7 +36,7 @@ export function Card({
   className?: string;
 }) {
   return (
-    <section className={`rounded-2xl border border-line bg-white p-5 ${className}`}>
+    <section className={`rounded-2xl border border-line bg-surface/60 p-5 ${className}`}>
       {(title || description) && (
         <header className="mb-4">
           {title && <h2 className="text-base font-semibold text-marine-900">{title}</h2>}
@@ -75,8 +75,8 @@ const tones: Record<Tone, string> = {
   neutral: "bg-surface text-marine-900",
   blue: "bg-marine-50 text-marine-800",
   gold: "bg-gold-100 text-gold-700",
-  green: "bg-emerald-50 text-emerald-800",
-  red: "bg-red-50 text-red-800",
+  green: "bg-success-50 text-success-800",
+  red: "bg-danger-50 text-danger-800",
 };
 
 export function Badge({ tone = "neutral", children }: { tone?: Tone; children: ReactNode }) {
@@ -108,11 +108,11 @@ export function StatusBadge({ status }: { status: string }) {
 }
 
 const buttonBase =
-  "inline-flex h-10 items-center justify-center rounded-full px-5 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50";
+  "inline-flex h-11 min-w-[44px] items-center justify-center rounded-full px-5 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50";
 export const buttonStyles = {
   primary: `${buttonBase} bg-marine-700 text-white hover:bg-marine-800`,
   secondary: `${buttonBase} border border-line bg-white text-marine-900 hover:border-marine-700`,
-  danger: `${buttonBase} border border-red-200 bg-white text-red-700 hover:bg-red-50`,
+  danger: `${buttonBase} border border-danger-200 bg-white text-danger-700 hover:bg-danger-50`,
 };
 
 export function LinkButton({
@@ -144,12 +144,12 @@ export function EmptyState({ title, body, action }: { title: string; body?: stri
 export function Notice({ tone = "blue", children }: { tone?: "blue" | "red" | "green" | "gold"; children: ReactNode }) {
   const styles = {
     blue: "border-marine-200 bg-marine-50 text-marine-900",
-    red: "border-red-200 bg-red-50 text-red-900",
-    green: "border-emerald-200 bg-emerald-50 text-emerald-900",
+    red: "border-danger-200 bg-danger-50 text-danger-900",
+    green: "border-success-200 bg-success-50 text-success-900",
     gold: "border-gold-200 bg-gold-100 text-marine-900",
   };
   return (
-    <div role={tone === "red" ? "alert" : "status"} className={`mb-5 rounded-xl border px-4 py-3 text-sm ${styles[tone]}`}>
+    <div role={tone === "red" ? "alert" : "status"} aria-live={tone === "red" ? "assertive" : "polite"} className={`mb-5 rounded-xl border px-4 py-3 text-sm ${styles[tone]}`}>
       {children}
     </div>
   );

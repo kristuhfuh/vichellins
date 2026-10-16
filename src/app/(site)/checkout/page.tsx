@@ -27,7 +27,7 @@ const initial: Fields = {
 };
 
 const input =
-  "mt-1.5 h-12 w-full rounded-xl border border-line bg-white px-4 text-sm text-marine-900 focus:border-marine-700 focus:outline-none aria-[invalid=true]:border-red-600";
+  "mt-1.5 h-12 w-full rounded-xl border border-line bg-white px-4 text-sm text-marine-900 focus:border-marine-700 focus:outline-none aria-[invalid=true]:border-danger-700";
 
 function validate(f: Fields) {
   const errors: Partial<Record<keyof Fields, string>> = {};
@@ -46,6 +46,7 @@ export default function CheckoutPage() {
   const [fields, setFields] = useState<Fields>(initial);
   const [errors, setErrors] = useState<Partial<Record<keyof Fields, string>>>({});
   const [sent, setSent] = useState<string | null>(null);
+  const [confirmClear, setConfirmClear] = useState(false);
 
   const zone = deliveryZones.find((z) => z.id === fields.zone) ?? deliveryZones[0];
   const payment = paymentMethods.find((p) => p.id === fields.payment) ?? paymentMethods[0];
@@ -57,25 +58,35 @@ export default function CheckoutPage() {
   if (sent) {
     return (
       <div className="mx-auto max-w-xl px-4 py-24 text-center sm:px-6">
-        <h1 className="text-3xl font-semibold tracking-tight text-marine-900">One more step</h1>
+        <h1 className="text-3xl font-semibold tracking-tight text-marine-900">Almost done — just press send</h1>
         <p className="mt-3 text-muted">
-          WhatsApp should have opened with your order ready to send. Press send there and we will confirm stock and delivery time.
+          WhatsApp has opened with your order ready. Hit send there and we&apos;ll confirm stock and arrange delivery — usually within a few minutes.
         </p>
         <a href={sent} target="_blank" rel="noopener noreferrer" className="mt-6 inline-flex h-12 items-center rounded-full bg-marine-700 px-7 text-sm font-semibold text-white hover:bg-marine-800">
           Open WhatsApp again
         </a>
         <p className="mt-4 text-xs text-muted">
-          Your order is not placed until you send the message.{" "}
-          <button
-            type="button"
-            className="underline"
-            onClick={() => {
-              clearCart();
-              setSent(null);
-            }}
-          >
-            I have sent it, clear my cart
-          </button>
+          Your order is only placed once you send the message in WhatsApp.{" "}
+          {confirmClear ? (
+            <>
+              Clear your cart?{" "}
+              <button
+                type="button"
+                className="underline"
+                onClick={() => { clearCart(); setSent(null); }}
+              >
+                Yes, clear it
+              </button>
+              {" · "}
+              <button type="button" className="underline" onClick={() => setConfirmClear(false)}>
+                Cancel
+              </button>
+            </>
+          ) : (
+            <button type="button" className="underline" onClick={() => setConfirmClear(true)}>
+              Clear my cart
+            </button>
+          )}
         </p>
       </div>
     );
@@ -128,7 +139,7 @@ export default function CheckoutPage() {
 
   const err = (key: keyof Fields) =>
     errors[key] ? (
-      <p id={`e-${key}`} className="mt-1 text-xs text-red-700">{errors[key]}</p>
+      <p id={`e-${key}`} className="mt-1 text-xs text-danger-700">{errors[key]}</p>
     ) : null;
   const aria = (key: keyof Fields) => ({
     "aria-invalid": errors[key] ? true : undefined,
@@ -225,7 +236,7 @@ export default function CheckoutPage() {
             Send order on WhatsApp
           </button>
           <p className="mt-3 text-xs text-muted">
-            Your order goes to us on WhatsApp. We confirm stock, then send payment details or arrange delivery.
+            This opens WhatsApp with your order pre-filled. We confirm stock and payment details — usually within a few minutes.
           </p>
           <Link href="/cart" className="mt-3 block text-center text-xs text-muted underline">Edit cart</Link>
         </aside>

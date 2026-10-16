@@ -41,14 +41,14 @@ export function Footer() {
         <div className="grid gap-8 p-8 sm:p-12 lg:grid-cols-2 lg:items-end">
           <div>
             <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">
-              Questions before you buy?
+              Not sure what to get?
               <br />
-              <span className="text-gold-400">Ask us on WhatsApp.</span>
+              <span className="text-gold-400">We&apos;re here on WhatsApp.</span>
             </h2>
           </div>
           <div className="lg:justify-self-end lg:text-right">
             <p className="max-w-md text-sm text-marine-200 lg:ml-auto">
-              Send a message for stock checks, product advice or to place an order. We reply quickly during business hours.
+              Message us about any product, ask if it&apos;s in stock, or just get advice. We reply fast.
             </p>
             <a
               href={whatsappLink("Hello Vichellins Nation, I have a question about a product.")}

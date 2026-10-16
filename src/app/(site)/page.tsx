@@ -8,16 +8,22 @@ import {
   getAllProducts,
   getCategoryTreeIds,
 } from "@/lib/catalog";
-import { store } from "@/lib/config";
+import { defaultHomepageContent, loadHomepageContent } from "@/lib/admin/queries";
+import { supabaseConfigured } from "@/lib/supabase/env";
 
-const trust = [
-  { title: "Genuine products", body: "Every item is checked and verified before it is listed." },
-  { title: "Warranty included", body: "Manufacturer or store warranty, clearly stated on each product." },
-  { title: "Lagos delivery", body: "Same-day delivery on the mainland and island for most orders." },
-  { title: "Inspect, then pay", body: "Choose pay on delivery and check your item first." },
-];
+async function getContent() {
+  if (!supabaseConfigured) return defaultHomepageContent;
+  try {
+    const { createClient } = await import("@/lib/supabase/server");
+    const supabase = await createClient();
+    return await loadHomepageContent(supabase);
+  } catch {
+    return defaultHomepageContent;
+  }
+}
 
-export default function HomePage() {
+export default async function HomePage() {
+  const content = await getContent();
   const categories = getTopCategories();
   const featured = getFeaturedProducts(4);
   const arrivals = getNewArrivals(4);
@@ -38,12 +44,12 @@ export default function HomePage() {
               Lagos&apos; gadget store
             </p>
             <h1 className="mt-5 text-4xl font-semibold leading-[1.05] tracking-tight sm:text-6xl">
-              Gadgets you can trust,
-              <span className="text-gold-400"> at your door.</span>
+              {content.hero_headline}
+              {content.hero_accent && (
+                <span className="text-gold-400"> {content.hero_accent}</span>
+              )}
             </h1>
-            <p className="mt-5 max-w-lg text-lg text-marine-200">
-              Phones, laptops, audio and smart home. {store.description.split(". ").slice(1).join(". ")}
-            </p>
+            <p className="mt-5 max-w-lg text-lg text-marine-200">{content.hero_sub}</p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link href="/shop" className="inline-flex h-12 items-center rounded-full bg-gold-400 px-7 text-sm font-semibold text-marine-900 hover:bg-gold-300">
                 Shop now
@@ -68,6 +74,17 @@ export default function HomePage() {
         </div>
       </section>
 
+      <section aria-label="Why shop with us" className="mx-auto mt-10 max-w-7xl px-4 sm:mt-12 sm:px-6">
+        <ul className="grid gap-4 rounded-3xl bg-marine-50 p-6 sm:grid-cols-2 sm:p-8 lg:grid-cols-4">
+          {content.trust.map((t) => (
+            <li key={t.title}>
+              <h3 className="text-sm font-semibold text-marine-900">{t.title}</h3>
+              <p className="mt-1 text-sm text-muted">{t.body}</p>
+            </li>
+          ))}
+        </ul>
+      </section>
+
       <section aria-labelledby="cats" className="mx-auto mt-16 max-w-7xl px-4 sm:px-6">
         <div className="flex items-end justify-between">
           <h2 id="cats" className="text-2xl font-semibold tracking-tight text-marine-900 sm:text-3xl">Shop by category</h2>
@@ -78,7 +95,7 @@ export default function HomePage() {
             <li key={c.id}>
               <Link href={`/category/${c.slug}`} className="group block rounded-3xl bg-surface p-4 transition-colors hover:bg-marine-50">
                 <div className="aspect-square">
-                  <ProductVisual kind={c.kind} tone="#0f3f7a" className="h-full w-full p-4 transition-transform group-hover:scale-105" />
+                  <ProductVisual kind={c.kind} tone="#1212b0" className="h-full w-full p-4 transition-transform group-hover:scale-105" />
                 </div>
                 <p className="mt-2 text-sm font-semibold text-marine-900">{c.name}</p>
                 <p className="text-xs text-muted">{counts[c.id]} product{counts[c.id] === 1 ? "" : "s"}</p>
@@ -88,27 +105,18 @@ export default function HomePage() {
         </ul>
       </section>
 
-      <section aria-labelledby="featured" className="mx-auto mt-20 max-w-7xl px-4 sm:px-6">
-        <div className="flex items-end justify-between">
-          <h2 id="featured" className="text-2xl font-semibold tracking-tight text-marine-900 sm:text-3xl">Customer favourites</h2>
-          <Link href="/shop?sort=popular" className="text-sm font-medium text-marine-700 underline">See more</Link>
+      <section aria-labelledby="featured" className="mt-20 bg-surface py-14 sm:py-16">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+          <div className="flex items-end justify-between">
+            <h2 id="featured" className="text-2xl font-semibold tracking-tight text-marine-900 sm:text-3xl">Customer favourites</h2>
+            <Link href="/shop?sort=popular" className="text-sm font-medium text-marine-700 underline">See more</Link>
+          </div>
+          <div className="mt-6 grid grid-cols-2 gap-x-4 gap-y-10 lg:grid-cols-4">
+            {featured.map((p) => (
+              <ProductCard key={p.id} product={p} />
+            ))}
+          </div>
         </div>
-        <div className="mt-6 grid grid-cols-2 gap-x-4 gap-y-10 lg:grid-cols-4">
-          {featured.map((p) => (
-            <ProductCard key={p.id} product={p} />
-          ))}
-        </div>
-      </section>
-
-      <section aria-label="Why shop with us" className="mx-auto mt-20 max-w-7xl px-4 sm:px-6">
-        <ul className="grid gap-4 rounded-3xl bg-marine-50 p-6 sm:grid-cols-2 sm:p-8 lg:grid-cols-4">
-          {trust.map((t) => (
-            <li key={t.title}>
-              <h3 className="text-sm font-semibold text-marine-900">{t.title}</h3>
-              <p className="mt-1 text-sm text-muted">{t.body}</p>
-            </li>
-          ))}
-        </ul>
       </section>
 
       <section aria-labelledby="new" className="mx-auto mt-20 max-w-7xl px-4 sm:px-6">
