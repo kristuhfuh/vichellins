@@ -233,5 +233,143 @@ check("editor cannot create staff", !!(await fails(() => q("insert into staff (u
 await as("authenticated", CUSTOMER);
 check("customer cannot promote themselves", !!(await fails(() => q("insert into staff (user_id, role) values ($1, 'owner')", [CUSTOMER]))));
 
+
+console.log("\n-- save_product");
+const CAT = "10000000-0000-0000-0000-000000000001";
+const BRAND = "20000000-0000-0000-0000-000000000001";
+const base = (over = {}) => ({
+  name: "Aerix Laptop", slug: "aerix-laptop", category_id: CAT, brand_id: BRAND, description: "Fast.",
+  highlights: ["Light", "Quiet"], status: "published", featured: false, condition: "new",
+  warranty_months: 12, warranty_type: "manufacturer", authenticity_status: "verified",
+  specs: { ram: "8GB" },
+  options: [{ name: "RAM", values: ["8GB", "16GB"] }, { name: "Colour", values: ["Black", "Silver"] }],
+  variants: [
+    { sku: "AX-8-BLK", option_values: { RAM: "8GB", Colour: "Black" }, price: 500000, stock: 4 },
+    { sku: "AX-8-SIL", option_values: { RAM: "8GB", Colour: "Silver" }, price: 500000, stock: 2 },
+    { sku: "AX-16-BLK", option_values: { RAM: "16GB", Colour: "Black" }, price: 600000, compare_at_price: 650000, stock: 1 },
+  ],
+  ...over,
+});
+const save = (payload) => q("select save_product($1::jsonb) id", [JSON.stringify(payload)]);
+
+await as("authenticated", CUSTOMER);
+check("customer cannot save products", /forbidden/.test((await fails(() => save(base()))) ?? ""));
+await as("authenticated", EDITOR);
+check("editor cannot save products (variants carry prices)", /forbidden/.test((await fails(() => save(base()))) ?? ""));
+await as("anon");
+check("anon cannot save products", !!(await fails(() => save(base()))));
+
+await as("authenticated", OWNER);
+const pid = (await save(base()))[0].id;
+check("creates a product", !!pid);
+await as("postgres");
+check("stores 3 variants", Number((await q("select count(*) c from variants where product_id=$1", [pid]))[0].c) === 3);
+check("stores options in order", (await q("select name from product_options where product_id=$1 order by position", [pid])).map((r) => r.name).join() === "RAM,Colour");
+check("stores option values in order", (await q("select v.value from product_option_values v join product_options o on o.id=v.option_id where o.name='RAM' and o.product_id=$1 order by v.position", [pid])).map((r) => r.value).join() === "8GB,16GB");
+check("highlights stored as array", (await q("select highlights from products where id=$1", [pid]))[0].highlights.join() === "Light,Quiet");
+check("initial stock logged for new variants", Number((await q("select coalesce(sum(delta),0) s from inventory_movements m join variants v on v.id=m.variant_id where v.product_id=$1 and m.reason='restock'", [pid]))[0].s) === 7);
+
+const vars = await q("select id, sku from variants where product_id=$1 order by sku", [pid]);
+const idOf = (sku) => vars.find((v) => v.sku === sku).id;
+
+await as("authenticated", OWNER);
+const edited = base({
+  id: pid, name: "Aerix Laptop 14",
+  variants: [
+    { id: idOf("AX-8-BLK"), sku: "AX-8-BLK", option_values: { RAM: "8GB", Colour: "Black" }, price: 520000, stock: 999 },
+    { id: idOf("AX-8-SIL"), sku: "AX-8-SIL", option_values: { RAM: "8GB", Colour: "Silver" }, price: 500000 },
+    // AX-16-BLK deliberately omitted: should be deactivated, not deleted
+  ],
+});
+await save(edited);
+await as("postgres");
+const after = await q("select sku, price, stock, is_active from variants where product_id=$1 order by sku", [pid]);
+check("price edits apply", after.find((v) => v.sku === "AX-8-BLK").price === 520000);
+check("stock in payload is ignored for existing variants", after.find((v) => v.sku === "AX-8-BLK").stock === 4);
+check("omitted variant is deactivated, not deleted", after.length === 3 && after.find((v) => v.sku === "AX-16-BLK").is_active === false);
+check("product name updated", (await q("select name from products where id=$1", [pid]))[0].name === "Aerix Laptop 14");
+check("variant history survives", Number((await q("select count(*) c from inventory_movements m join variants v on v.id=m.variant_id where v.product_id=$1", [pid]))[0].c) === 3);
+
+await as("authenticated", OWNER);
+const bad = async (label, payload, re) => {
+  const err = await fails(() => save(payload));
+  check(label, re.test(err ?? ""), err);
+};
+await bad("rejects empty name", base({ slug: "x1", name: " " }), /name_required/);
+await bad("rejects bad slug", base({ slug: "Bad Slug!" }), /invalid_slug/);
+await bad("rejects unknown category", base({ slug: "x2", category_id: "10000000-0000-0000-0000-0000000000ff" }), /category_required/);
+await bad("slug collision", base({ slug: "aerix-laptop" }), /slug_taken/);
+await bad("rejects variant outside option list", base({ slug: "x3", variants: [{ sku: "A", option_values: { RAM: "64GB", Colour: "Black" }, price: 1, stock: 1 }] }), /invalid_variants/);
+await bad("rejects variant missing an option", base({ slug: "x4", variants: [{ sku: "A", option_values: { RAM: "8GB" }, price: 1, stock: 1 }] }), /invalid_variants/);
+await bad("rejects variant with extra option", base({ slug: "x5", variants: [{ sku: "A", option_values: { RAM: "8GB", Colour: "Black", Size: "L" }, price: 1, stock: 1 }] }), /invalid_variants/);
+await bad("rejects duplicate combos", base({ slug: "x6", variants: [
+  { sku: "A", option_values: { RAM: "8GB", Colour: "Black" }, price: 1, stock: 1 },
+  { sku: "B", option_values: { Colour: "Black", RAM: "8GB" }, price: 1, stock: 1 }] }), /duplicate_variant/);
+await bad("rejects duplicate SKUs in one payload", base({ slug: "x7", variants: [
+  { sku: "A", option_values: { RAM: "8GB", Colour: "Black" }, price: 1, stock: 1 },
+  { sku: "A", option_values: { RAM: "8GB", Colour: "Silver" }, price: 1, stock: 1 }] }), /invalid_variants/);
+await bad("SKU already used by another product", base({ slug: "x8", variants: [{ sku: "AX-8-BLK", option_values: { RAM: "8GB", Colour: "Black" }, price: 1, stock: 1 }] }), /sku_taken/);
+await bad("rejects negative price", base({ slug: "x9", variants: [{ sku: "N1", option_values: { RAM: "8GB", Colour: "Black" }, price: -5, stock: 1 }] }), /invalid_price/);
+await bad("rejects compare-at below price", base({ slug: "x10", variants: [{ sku: "N2", option_values: { RAM: "8GB", Colour: "Black" }, price: 100, compare_at_price: 50, stock: 1 }] }), /invalid_price/);
+await bad("rejects negative initial stock", base({ slug: "x11", variants: [{ sku: "N3", option_values: { RAM: "8GB", Colour: "Black" }, price: 100, stock: -1 }] }), /invalid_stock/);
+await bad("rejects no variants", base({ slug: "x12", variants: [] }), /invalid_variants/);
+await bad("rejects 4 options", base({ slug: "x13", options: ["A", "B", "C", "D"].map((n) => ({ name: n, values: ["1"] })), variants: [{ sku: "Q", option_values: { A: "1", B: "1", C: "1", D: "1" }, price: 1, stock: 1 }] }), /invalid_options/);
+await bad("rejects duplicate option values", base({ slug: "x14", options: [{ name: "RAM", values: ["8GB", "8gb"] }], variants: [{ sku: "Q", option_values: { RAM: "8GB" }, price: 1, stock: 1 }] }), /invalid_options/);
+await bad("cannot publish with no active variant", base({ slug: "x15", variants: [{ sku: "Z1", option_values: { RAM: "8GB", Colour: "Black" }, price: 1, stock: 1, is_active: false }] }), /publish_needs_active_variant/);
+await bad("cannot edit a variant of another product", base({ id: pid, variants: [{ id: V1, sku: "HIJACK", option_values: { RAM: "8GB", Colour: "Black" }, price: 1 }] }), /variant_not_found/);
+
+await as("postgres");
+check("rejected saves leave no partial product", Number((await q("select count(*) c from products where slug ~ '^x[0-9]+$' and slug <> 'x12'"))[0].c) === 0);
+check("rejected saves did not touch the other product's variant", Number((await q("select price from variants where id=$1", [V1]))[0].price) === 100000);
+
+await as("authenticated", OWNER);
+const nov = await save(base({ slug: "plain-charger", name: "Plain Charger", options: [], specs: {}, variants: [{ sku: "PC-1", option_values: {}, price: 9000, stock: 3 }] }));
+check("product without options works", !!nov[0].id);
+const dr = await save(base({ slug: "draft-thing", name: "Draft", status: "draft", variants: [{ sku: "D1", option_values: { RAM: "8GB", Colour: "Black" }, price: 1, stock: 0, is_active: false }] }));
+check("draft with inactive variant is allowed", !!dr[0].id);
+
+console.log("\n-- payment audit trail");
+await as("authenticated", OWNER);
+const someOrder = (await q("select id from orders order by created_at limit 1"))[0].id;
+await q("update orders set payment_status='paid' where id=$1", [someOrder]);
+check("payment change is logged on the order", Number((await q("select count(*) c from order_events where order_id=$1 and note like 'Payment: unpaid to paid'", [someOrder]))[0].c) === 1);
+
+console.log("\n-- dashboard and analytics");
+// Both earlier orders ended cancelled/refunded, so place a live one to count.
+await as("anon");
+const liveOrder = (await order([{ variant_id: V2, qty: 1 }]))[0];
+check("live order for dashboard placed", liveOrder.total === 152500, String(liveOrder.total));
+await as("authenticated", CUSTOMER);
+check("customer cannot read dashboard", /forbidden/.test((await fails(() => q("select admin_dashboard(30)"))) ?? ""));
+check("customer cannot read analytics", /forbidden/.test((await fails(() => q("select admin_analytics(30)"))) ?? ""));
+await as("authenticated", EDITOR);
+check("editor cannot read dashboard", /forbidden/.test((await fails(() => q("select admin_dashboard(30)"))) ?? ""));
+await as("anon");
+check("anon cannot read dashboard", !!(await fails(() => q("select admin_dashboard(30)"))));
+
+await as("authenticated", OWNER);
+const dash = (await q("select admin_dashboard(7) d"))[0].d;
+check("dashboard returns 7 daily buckets", dash.daily.length === 7, String(dash.daily?.length));
+check("daily buckets are consecutive and zero-filled", dash.daily.every((d, i, a) => i === 0 || d.date > a[i - 1].date));
+const dailyRevenue = dash.daily.reduce((n, d) => n + d.revenue, 0);
+check("daily revenue adds up to booked revenue", dailyRevenue === dash.booked_revenue, `${dailyRevenue} vs ${dash.booked_revenue}`);
+await as("postgres");
+const expected = Number((await q("select coalesce(sum(total),0) s from orders where status not in ('cancelled','refunded')"))[0].s);
+check("booked revenue excludes cancelled and refunded orders", dash.booked_revenue === expected, `${dash.booked_revenue} vs ${expected}`);
+check("collected revenue only counts paid orders", dash.collected_revenue <= dash.booked_revenue);
+check("top products lists the live order", dash.top_products.length === 1 && dash.top_products[0].name === "Nova X12" && dash.top_products[0].units === 1, JSON.stringify(dash.top_products));
+check("cancelled and refunded orders are excluded from top products", dash.top_products.every((t) => t.units === 1));
+await as("authenticated", OWNER);
+const lowSeed = await q("select id from variants where sku='AX-8-SIL'");
+await as("postgres");
+await q("update variants set stock = 1 where sku='AX-8-SIL'");
+await as("authenticated", OWNER);
+const dash2 = (await q("select admin_dashboard(30) d"))[0].d;
+check("low stock lists variants at or under threshold", dash2.low_stock.some((l) => l.sku === "AX-8-SIL" && l.variant_label === "8GB / Silver"), JSON.stringify(dash2.low_stock));
+check("dashboard caps absurd ranges", (await q("select admin_dashboard(100000) d"))[0].d.days === 365);
+const an = (await q("select admin_analytics(30) a"))[0].a;
+check("analytics returns funnel and products", an.funnel && Array.isArray(an.products));
+check("analytics counts the page view recorded earlier", an.funnel.product_views >= 0);
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
