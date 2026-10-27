@@ -30,7 +30,8 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0f3f7a",
+  // Matches --color-marine-900 so the mobile browser chrome blends with the hero.
+  themeColor: "#090970",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

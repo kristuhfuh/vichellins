@@ -1,8 +1,9 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { COMMERCE, requireStaff } from "@/lib/admin/auth";
 import { done, fail, friendlyError, type ActionState } from "@/lib/admin/errors";
+import { CATALOG_TAG } from "@/lib/catalog";
 import { formString } from "@/lib/admin/util";
 import { createClient } from "@/lib/supabase/server";
 
@@ -33,5 +34,6 @@ export async function adjustStock(_prev: ActionState, form: FormData): Promise<A
   revalidatePath("/admin/inventory");
   revalidatePath("/admin/products");
   revalidatePath("/admin");
+  updateTag(CATALOG_TAG);
   return done(`Stock is now ${data}.`);
 }

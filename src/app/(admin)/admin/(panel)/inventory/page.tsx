@@ -104,7 +104,7 @@ export default async function InventoryPage({ searchParams }: PageProps<"/admin/
 
       <form className="mb-5 flex flex-wrap items-end gap-3" role="search">
         {filter && <input type="hidden" name="show" value={filter} />}
-        <div className="min-w-[220px] flex-1">
+        <div className="min-w-0 basis-full flex-1 sm:basis-56">
           <label htmlFor="q" className="text-sm font-medium text-marine-900">Search</label>
           <input id="q" name="q" defaultValue={q} placeholder="Product name or SKU" className={inputClass} />
         </div>
@@ -143,7 +143,7 @@ export default async function InventoryPage({ searchParams }: PageProps<"/admin/
                         <ul className="mt-2 space-y-1 text-sm">
                           {moves.map((m, i) => (
                             <li key={i} className="flex flex-wrap gap-x-3 text-marine-900">
-                              <span className={`w-12 font-semibold tabular-nums ${m.delta < 0 ? "text-red-700" : "text-emerald-700"}`}>{m.delta > 0 ? `+${m.delta}` : m.delta}</span>
+                              <span className={`w-12 font-semibold tabular-nums ${m.delta < 0 ? "text-danger-700" : "text-success-700"}`}>{m.delta > 0 ? `+${m.delta}` : m.delta}</span>
                               <span>{reasons[m.reason] ?? m.reason}{m.note ? ` · ${m.note}` : ""}</span>
                               <span className="text-xs text-muted">{dateTime.format(new Date(m.created_at))}</span>
                             </li>

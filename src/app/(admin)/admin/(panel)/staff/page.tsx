@@ -20,7 +20,7 @@ export default async function StaffPage() {
   return (
     <>
       <PageHeader title="Staff" description="Who can sign in to this admin, and what they can do." />
-      <div className="mb-6 grid gap-3 text-sm sm:grid-cols-3">
+      <div className="mb-6 grid gap-3 text-sm @min-[42rem]:grid-cols-3">
         {[
           ["Owner", "Everything, including staff accounts."],
           ["Staff", "Orders, products, stock, delivery, discounts and analytics."],

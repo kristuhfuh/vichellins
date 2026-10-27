@@ -66,7 +66,7 @@ export default function CheckoutPage() {
           Open WhatsApp again
         </a>
         <p className="mt-4 text-xs text-muted">
-          Your order is only placed once you send the message in WhatsApp.{" "}
+          Your order isn&apos;t placed until you send that WhatsApp message.{" "}
           {confirmClear ? (
             <>
               Clear your cart?{" "}
@@ -96,7 +96,7 @@ export default function CheckoutPage() {
     return (
       <div className="mx-auto max-w-2xl px-4 py-24 text-center sm:px-6">
         <h1 className="text-3xl font-semibold tracking-tight text-marine-900">Nothing to check out</h1>
-        <p className="mt-3 text-muted">Your cart is empty.</p>
+        <p className="mt-3 text-muted">Your cart&apos;s empty — add something first.</p>
         <Link href="/shop" className="mt-6 inline-flex h-12 items-center rounded-full bg-marine-700 px-7 text-sm font-semibold text-white hover:bg-marine-800">
           Browse the shop
         </Link>
@@ -151,8 +151,8 @@ export default function CheckoutPage() {
       <h1 className="text-3xl font-semibold tracking-tight text-marine-900">Checkout</h1>
       <p className="mt-2 text-sm text-muted">Delivery within Lagos only. No account needed.</p>
 
-      <form onSubmit={submit} noValidate className="mt-8 grid gap-10 lg:grid-cols-[1fr_380px]">
-        <div className="space-y-8">
+      <form onSubmit={submit} noValidate className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-10">
+        <div className="min-w-0 space-y-8">
           <fieldset className="space-y-4">
             <legend className="text-lg font-semibold text-marine-900">Your details</legend>
             <div>
@@ -214,12 +214,12 @@ export default function CheckoutPage() {
           </fieldset>
         </div>
 
-        <aside className="h-fit rounded-3xl bg-surface p-6">
+        <aside className="min-w-0 h-fit rounded-3xl bg-surface p-5 sm:p-6">
           <h2 className="text-lg font-semibold text-marine-900">Order summary</h2>
           <ul className="mt-4 space-y-3 text-sm">
             {items.map((i) => (
               <li key={i.variantId} className="flex justify-between gap-4">
-                <span className="text-marine-900">
+                <span className="min-w-0 break-words text-marine-900">
                   {i.name} <span className="text-muted">x{i.qty}</span>
                   {i.variantLabel && <span className="block text-xs text-muted">{i.variantLabel}</span>}
                 </span>
@@ -238,7 +238,7 @@ export default function CheckoutPage() {
           <p className="mt-3 text-xs text-muted">
             This opens WhatsApp with your order pre-filled. We confirm stock and payment details — usually within a few minutes.
           </p>
-          <Link href="/cart" className="mt-3 block text-center text-xs text-muted underline">Edit cart</Link>
+          <Link href="/cart" className="mt-3 flex min-h-11 items-center justify-center text-center text-sm text-muted underline">Edit cart</Link>
         </aside>
       </form>
     </div>

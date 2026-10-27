@@ -8,7 +8,7 @@ export function AddBrandForm() {
   return (
     <Card title="Add a brand">
       <ActionForm action={createBrand} resetOnSuccess className="flex flex-wrap items-end gap-3">
-        <div className="min-w-[220px] flex-1">
+        <div className="min-w-0 basis-full flex-1 sm:basis-56">
           <Field label="Brand name" htmlFor="new-brand">
             <input id="new-brand" name="name" required className={inputClass} placeholder="e.g. Samsung" />
           </Field>

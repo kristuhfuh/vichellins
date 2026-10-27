@@ -8,7 +8,7 @@ import { adjustStock } from "./actions";
 export function AdjustForm({ variantId }: { variantId: string }) {
   const [reason, setReason] = useState("restock");
   return (
-    <ActionForm action={adjustStock} className="grid gap-3 sm:grid-cols-[150px_110px_110px_1fr_auto] sm:items-end">
+    <ActionForm action={adjustStock} className="grid items-end gap-3 @min-[28rem]:grid-cols-2 @min-[56rem]:grid-cols-[minmax(0,1.3fr)_minmax(0,.8fr)_minmax(0,.7fr)_minmax(0,1.5fr)_auto]">
       <input type="hidden" name="variant_id" value={variantId} />
       <div>
         <label htmlFor={`reason-${variantId}`} className="text-xs font-medium text-marine-900">Reason</label>

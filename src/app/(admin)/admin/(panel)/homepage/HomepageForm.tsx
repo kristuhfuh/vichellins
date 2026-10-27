@@ -45,7 +45,7 @@ export function HomepageForm({ content }: { content: HomepageContent }) {
       <Card title="Trust items" description="Four short reassurances shown directly below the hero.">
         <div className="space-y-5">
           {content.trust.map((item, i) => (
-            <div key={i} className="grid gap-4 sm:grid-cols-2">
+            <div key={i} className="grid gap-4 @min-[34rem]:grid-cols-2">
               <Field label={`Item ${i + 1} — title`} htmlFor={`trust_${i}_title`}>
                 <input
                   id={`trust_${i}_title`}

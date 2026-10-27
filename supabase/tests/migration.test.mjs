@@ -27,6 +27,12 @@ const fails = async (fn) => {
 await db.exec(`
   create role anon nologin; create role authenticated nologin;
   create schema auth;
+  create schema storage;
+  create table storage.buckets (id text primary key, name text, public boolean, file_size_limit bigint, allowed_mime_types text[]);
+  create table storage.objects (id uuid primary key default gen_random_uuid(), bucket_id text references storage.buckets(id), name text);
+  alter table storage.objects enable row level security;
+  grant usage on schema storage to anon, authenticated;
+  grant all on all tables in schema storage to anon, authenticated;
   create table auth.users (id uuid primary key);
   create function auth.uid() returns uuid language sql stable as
     $$ select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid $$;
@@ -370,6 +376,31 @@ check("dashboard caps absurd ranges", (await q("select admin_dashboard(100000) d
 const an = (await q("select admin_analytics(30) a"))[0].a;
 check("analytics returns funnel and products", an.funnel && Array.isArray(an.products));
 check("analytics counts the page view recorded earlier", an.funnel.product_views >= 0);
+
+console.log("\n-- category images");
+await as("postgres");
+check("shared image bucket is public and limits uploads", (await q("select public, file_size_limit, allowed_mime_types from storage.buckets where id='product-images'")).some(b => b.public && Number(b.file_size_limit) === 5242880 && b.allowed_mime_types.length === 3));
+await as("authenticated", EDITOR);
+await q("update categories set image_url=$1 where slug='phones'", ["https://example.test/product-images/categories/phones/artwork.png"]);
+check("editor can save category artwork", (await q("select image_url from categories where slug='phones'"))[0].image_url.endsWith("artwork.png"));
+const artwork = (await q("insert into storage.objects (bucket_id,name) values ('product-images','categories/phones/artwork.png') returning id"))[0].id;
+check("editor can upload category artwork", Boolean(artwork));
+await as("anon");
+check("shoppers can read category artwork", (await q("select id from storage.objects where id=$1", [artwork])).length === 1);
+check("anonymous uploads are rejected", Boolean(await fails(() => q("insert into storage.objects (bucket_id,name) values ('product-images','categories/attack.png')"))));
+await q("delete from storage.objects where id=$1", [artwork]);
+check("anonymous visitors cannot delete artwork", (await q("select id from storage.objects where id=$1", [artwork])).length === 1);
+await as("authenticated", CUSTOMER);
+check("customer uploads are rejected", Boolean(await fails(() => q("insert into storage.objects (bucket_id,name) values ('product-images','categories/attack.png')"))));
+await q("update categories set image_url='https://example.test/attack.png' where slug='phones'");
+check("customers cannot replace category artwork", (await q("select image_url from categories where slug='phones'"))[0].image_url.endsWith("artwork.png"));
+await as("authenticated", EDITOR);
+await q("update storage.objects set name='categories/phones/replacement.png' where id=$1", [artwork]);
+check("editor can replace category artwork", (await q("select name from storage.objects where id=$1", [artwork]))[0].name.endsWith("replacement.png"));
+await q("delete from storage.objects where id=$1", [artwork]);
+check("editor can remove category artwork", (await q("select id from storage.objects where id=$1", [artwork])).length === 0);
+await q("update categories set image_url=null where slug='phones'");
+check("category image can be removed without deleting category", (await q("select image_url from categories where slug='phones'"))[0].image_url === null);
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

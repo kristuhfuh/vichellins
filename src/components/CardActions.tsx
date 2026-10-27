@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { addToCart, type CartItem } from "@/lib/cart-store";
 
 const base =
-  "inline-flex h-10 flex-1 items-center justify-center rounded-full px-3 text-xs font-semibold transition-colors";
+  "inline-flex min-h-11 min-w-0 flex-1 basis-24 items-center justify-center rounded-full px-3 py-2 text-center text-sm font-semibold transition-colors";
 
 /**
  * Card buttons. A single-variant product can be added straight from the card;

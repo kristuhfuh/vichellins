@@ -26,8 +26,14 @@ const sortOptions: { value: Sort; label: string }[] = [
 
 const checkbox = "h-4 w-4 rounded border-line accent-marine-700";
 
-function CategoryNav({ active }: { active?: Category }) {
-  const activePath = active ? getCategoryPath(active.id).map((c) => c.id) : [];
+async function CategoryNav({ active }: { active?: Category }) {
+  const [activePath, topCategories] = await Promise.all([
+    active ? getCategoryPath(active.id).then((p) => p.map((c) => c.id)) : Promise.resolve<string[]>([]),
+    getTopCategories(),
+  ]);
+  const childrenMap = new Map(
+    await Promise.all(topCategories.map(async (c) => [c.id, await getChildCategories(c.id)] as const)),
+  );
   return (
     <nav aria-label="Categories">
       <h2 className="text-sm font-semibold text-marine-900">Category</h2>
@@ -40,8 +46,8 @@ function CategoryNav({ active }: { active?: Category }) {
             All products
           </Link>
         </li>
-        {getTopCategories().map((c) => {
-          const children = getChildCategories(c.id);
+        {topCategories.map((c) => {
+          const children = childrenMap.get(c.id) ?? [];
           const open = activePath.includes(c.id);
           return (
             <li key={c.id}>
@@ -75,7 +81,7 @@ function CategoryNav({ active }: { active?: Category }) {
   );
 }
 
-export function ShopView({
+export async function ShopView({
   basePath,
   params,
   category,
@@ -89,17 +95,23 @@ export function ShopView({
   intro?: string;
 }) {
   const query = parseShopQuery(params, category?.id);
-  const results = filterProducts(query);
+  const [results, allProducts, allBrands, treeIds] = await Promise.all([
+    filterProducts(query),
+    getAllProducts(),
+    getBrands(),
+    category ? getCategoryTreeIds(category.id) : Promise.resolve<string[]>([]),
+  ]);
   const page = paginate(results, query.page);
 
   // Filter options come from the whole category, not the filtered result, so choices don't vanish as you pick them.
   const pool = category
-    ? getAllProducts().filter((p) => getCategoryTreeIds(category.id).includes(p.categoryId))
-    : getAllProducts();
-  const specFilters = getSpecFilters(category?.id, pool);
+    ? allProducts.filter((p) => treeIds.includes(p.categoryId))
+    : allProducts;
+  const specFilters = await getSpecFilters(category?.id, pool);
   const brandIds = new Set(pool.map((p) => p.brandId));
-  const brands = getBrands().filter((b) => brandIds.has(b.id));
+  const brands = allBrands.filter((b) => brandIds.has(b.id));
   const hasConditionChoice = new Set(pool.map((p) => p.condition)).size > 1;
+  const breadcrumbPath = category ? await getCategoryPath(category.id) : [];
 
   const activeCount =
     (query.brands?.length ?? 0) +
@@ -209,15 +221,23 @@ export function ShopView({
   return (
     <>
       <section className="relative overflow-hidden bg-marine-900 text-white">
+        {/* The category name floods the background and ghosts behind the H1. */}
         <p
           aria-hidden="true"
-          className="pointer-events-none absolute -bottom-10 left-1/2 -translate-x-1/2 select-none whitespace-nowrap text-[clamp(7rem,24vw,18rem)] font-bold leading-none tracking-tighter text-marine-800"
+          className="pointer-events-none absolute inset-x-0 -bottom-6 select-none whitespace-nowrap text-center font-black leading-[0.8] tracking-tighter text-marine-800 text-[clamp(8rem,26vw,22rem)]"
         >
           {category ? category.name : "Shop"}
         </p>
-        <div className="relative mx-auto max-w-7xl px-4 pb-24 pt-14 sm:px-6 sm:pb-28 sm:pt-20">
-          <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">{heading}</h1>
-          {intro && <p className="mt-3 max-w-xl text-marine-200">{intro}</p>}
+        <div className="relative mx-auto max-w-7xl px-4 pb-28 pt-16 sm:px-6 sm:pb-32 sm:pt-24">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold-400">
+            {category ? "Category" : "The catalogue"}
+          </p>
+          <h1 className="mt-3 font-bold leading-[0.95] tracking-tight text-[clamp(2.5rem,7vw,5.5rem)]">
+            {heading}
+          </h1>
+          {intro && (
+            <p className="mt-5 max-w-xl text-base text-marine-200 sm:text-lg">{intro}</p>
+          )}
         </div>
       </section>
 
@@ -236,10 +256,10 @@ export function ShopView({
             type="search"
             defaultValue={query.q}
             placeholder={category ? `Search in ${category.name}` : "Search all products"}
-            className="h-11 flex-1 rounded-xl bg-transparent px-3 text-sm focus:outline-none"
+            className="h-11 min-w-0 flex-1 rounded-xl bg-transparent px-2 text-base focus:outline-none focus:ring-2 focus:ring-marine-100 sm:px-3 sm:text-sm"
           />
           {query.sort && query.sort !== "featured" && <input type="hidden" name="sort" value={query.sort} />}
-          <button type="submit" className="h-11 rounded-full bg-marine-700 px-6 text-sm font-semibold text-white hover:bg-marine-800">
+          <button type="submit" className="h-11 shrink-0 rounded-full bg-marine-700 px-4 text-sm font-semibold text-white hover:bg-marine-800 sm:px-6">
             Search
           </button>
         </form>
@@ -251,7 +271,7 @@ export function ShopView({
             <li>
               <Link href="/shop" className="hover:text-marine-900">Shop</Link>
             </li>
-            {getCategoryPath(category.id).map((c, i, arr) => (
+            {breadcrumbPath.map((c, i, arr) => (
               <li key={c.id} className="flex items-center gap-1.5">
                 <span aria-hidden="true">/</span>
                 {i === arr.length - 1 ? (
@@ -267,7 +287,7 @@ export function ShopView({
 
       <div className="mx-auto mt-8 grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[240px_1fr]">
         <details className="rounded-2xl border border-line px-4 py-3 lg:hidden">
-          <summary className="flex cursor-pointer list-none items-center justify-between text-sm font-semibold text-marine-900 [&::-webkit-details-marker]:hidden">
+          <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 text-sm font-semibold text-marine-900 [&::-webkit-details-marker]:hidden">
             Categories &amp; filters{activeCount > 0 && ` (${activeCount})`}
             <span aria-hidden="true" className="text-xs font-normal text-muted">Show / hide</span>
           </summary>
@@ -277,7 +297,7 @@ export function ShopView({
           {sidebar}
         </aside>
 
-        <section aria-label="Products">
+        <section aria-label="Products" className="min-w-0">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <p className="text-sm text-muted" aria-live="polite">
               {page.total} product{page.total === 1 ? "" : "s"}
@@ -290,7 +310,7 @@ export function ShopView({
                   key={s.value}
                   href={withParams(basePath, params, { sort: s.value === "featured" ? undefined : s.value, page: undefined })}
                   aria-current={query.sort === s.value ? "true" : undefined}
-                  className={`rounded-full px-3 py-1.5 font-medium ${query.sort === s.value ? "bg-marine-700 text-white" : "bg-surface text-marine-900 hover:bg-marine-50"}`}
+                  className={`inline-flex min-h-11 items-center rounded-full px-3 py-2 font-medium ${query.sort === s.value ? "bg-marine-700 text-white" : "bg-surface text-marine-900 hover:bg-marine-50"}`}
                 >
                   {s.label}
                 </Link>
@@ -300,14 +320,16 @@ export function ShopView({
 
           {page.items.length === 0 ? (
             <div className="mt-10 rounded-3xl bg-surface p-10 text-center">
-              <h2 className="text-lg font-semibold text-marine-900">No products match</h2>
-              <p className="mt-2 text-sm text-muted">Try removing a filter or searching for something else.</p>
+              <h2 className="text-lg font-semibold text-marine-900">Nothing matched that</h2>
+              <p className="mt-2 text-sm text-muted">
+                Loosen a filter or try different words — the thing you want is probably hiding behind one of them.
+              </p>
               <Link href={basePath} className="mt-5 inline-flex h-10 items-center rounded-full bg-marine-700 px-5 text-sm font-semibold text-white hover:bg-marine-800">
-                Reset all filters
+                Clear filters
               </Link>
             </div>
           ) : (
-            <div className="mt-6 grid grid-cols-2 gap-x-4 gap-y-10 md:grid-cols-3">
+            <div className="mt-6 grid grid-cols-1 gap-x-4 gap-y-8 min-[380px]:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4">
               {page.items.map((p) => (
                 <ProductCard key={p.id} product={p} />
               ))}
@@ -315,7 +337,7 @@ export function ShopView({
           )}
 
           {page.totalPages > 1 && (
-            <nav aria-label="Pagination" className="mt-12 flex items-center justify-between border-t border-line pt-6 text-sm">
+            <nav aria-label="Pagination" className="mt-12 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-6 text-sm">
               {page.page > 1 ? (
                 <Link href={withParams(basePath, params, { page: page.page - 1 === 1 ? undefined : String(page.page - 1) })} className="font-medium text-marine-900 hover:underline">
                   ← Previous
@@ -323,7 +345,7 @@ export function ShopView({
               ) : (
                 <span />
               )}
-              <ul className="flex items-center gap-1">
+              <ul className="order-last flex w-full flex-wrap items-center justify-center gap-1 sm:order-none sm:w-auto">
                 {Array.from({ length: page.totalPages }, (_, i) => i + 1).map((n) => (
                   <li key={n}>
                     <Link

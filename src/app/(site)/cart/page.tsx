@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { ProductVisual } from "@/components/ProductVisual";
 import { removeFromCart, setQty, useCart } from "@/lib/cart-store";
@@ -34,25 +35,29 @@ export default function CartPage() {
         <ul className="divide-y divide-line border-y border-line">
           {items.map((item) => (
             <li key={item.variantId} className="flex gap-4 py-5">
-              <Link href={`/product/${item.slug}`} className="h-24 w-24 shrink-0 overflow-hidden rounded-2xl bg-surface">
-                <ProductVisual kind={item.kind} tone={item.tone} className="h-full w-full p-3" />
+              <Link href={`/product/${item.slug}`} className="relative h-24 w-24 shrink-0 overflow-hidden rounded-2xl bg-surface">
+                {item.image ? (
+                  <Image src={item.image} alt={item.name} fill sizes="96px" className="object-contain p-2" />
+                ) : (
+                  <ProductVisual kind={item.kind} tone={item.tone} className="h-full w-full p-3" />
+                )}
               </Link>
-              <div className="flex flex-1 flex-col justify-between sm:flex-row">
-                <div>
+              <div className="flex min-w-0 flex-1 flex-col justify-between gap-3 sm:flex-row">
+                <div className="min-w-0 break-words">
                   <Link href={`/product/${item.slug}`} className="font-semibold text-marine-900 hover:underline">
                     {item.name}
                   </Link>
                   {item.variantLabel && <p className="mt-0.5 text-sm text-muted">{item.variantLabel}</p>}
                   <p className="mt-1 text-sm text-marine-900">{formatPrice(item.price)}</p>
                 </div>
-                <div className="mt-3 flex items-center gap-4 sm:mt-0 sm:flex-col sm:items-end sm:gap-3">
+                <div className="flex shrink-0 flex-wrap items-center gap-x-3 gap-y-2 sm:flex-col sm:items-end sm:gap-3">
                   <div className="flex h-11 items-center rounded-full border border-line" role="group" aria-label={`Quantity for ${item.name}`}>
                     <button type="button" onClick={() => setQty(item.variantId, item.qty - 1)} aria-label="Decrease quantity" className="h-11 w-11 text-marine-900">−</button>
                     <span className="w-7 text-center text-sm font-semibold">{item.qty}</span>
                     <button type="button" onClick={() => setQty(item.variantId, item.qty + 1)} disabled={item.qty >= item.maxQty} aria-label="Increase quantity" className="h-11 w-11 text-marine-900 disabled:opacity-30">+</button>
                   </div>
                   <p className="text-sm font-semibold text-marine-900">{formatPrice(item.price * item.qty)}</p>
-                  <button type="button" onClick={() => removeFromCart(item.variantId)} className="text-xs text-muted underline hover:text-marine-900">
+                  <button type="button" onClick={() => removeFromCart(item.variantId)} className="min-h-11 px-1 text-sm text-muted underline hover:text-marine-900">
                     Remove
                   </button>
                 </div>

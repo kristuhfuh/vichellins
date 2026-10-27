@@ -12,7 +12,7 @@ export default function SiteLayout({ children }: LayoutProps<"/">) {
         Skip to content
       </a>
       <Header />
-      <main id="main" className="flex-1">
+      <main id="main" className="flex-1 bg-white text-foreground">
         {children}
       </main>
       <Footer />

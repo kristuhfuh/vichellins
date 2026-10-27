@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 export const inputClass =
-  "mt-1.5 h-11 w-full rounded-lg border border-line bg-white px-3 text-sm text-marine-900 placeholder:text-muted/70 focus:border-marine-700 focus:outline-none disabled:bg-surface disabled:text-muted";
+  "mt-1.5 h-11 w-full min-w-0 rounded-xl border border-line bg-white px-3 text-base text-marine-900 transition-colors placeholder:text-muted/70 focus:border-marine-700 focus:outline-none focus:ring-2 focus:ring-marine-100 disabled:cursor-not-allowed disabled:bg-surface disabled:text-muted sm:text-sm";
 
 export function PageHeader({
   title,
@@ -14,12 +14,12 @@ export function PageHeader({
   actions?: ReactNode;
 }) {
   return (
-    <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-marine-900">{title}</h1>
-        {description && <p className="mt-1 max-w-2xl text-sm text-muted">{description}</p>}
+    <div className="mb-7 flex min-w-0 flex-wrap items-start justify-between gap-4 border-b border-line pb-6">
+      <div className="min-w-0">
+        <h1 className="break-words text-2xl font-semibold leading-tight tracking-tight text-marine-900 sm:text-3xl">{title}</h1>
+        {description && <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted">{description}</p>}
       </div>
-      {actions && <div className="flex flex-wrap gap-2">{actions}</div>}
+      {actions && <div className="flex min-w-0 flex-wrap items-center gap-2 [&>a]:min-h-11 [&>a]:content-center">{actions}</div>}
     </div>
   );
 }
@@ -36,11 +36,11 @@ export function Card({
   className?: string;
 }) {
   return (
-    <section className={`rounded-2xl border border-line bg-surface/60 p-5 ${className}`}>
+    <section className={`min-w-0 rounded-2xl border border-line bg-surface/40 p-4 sm:p-5 ${className}`}>
       {(title || description) && (
         <header className="mb-4">
           {title && <h2 className="text-base font-semibold text-marine-900">{title}</h2>}
-          {description && <p className="mt-0.5 text-sm text-muted">{description}</p>}
+          {description && <p className="mt-1 text-sm leading-relaxed text-muted">{description}</p>}
         </header>
       )}
       {children}
@@ -60,12 +60,12 @@ export function Field({
   children: ReactNode;
 }) {
   return (
-    <div>
+    <div className="min-w-0">
       <label htmlFor={htmlFor} className="text-sm font-medium text-marine-900">
         {label}
       </label>
       {children}
-      {hint && <p className="mt-1 text-xs text-muted">{hint}</p>}
+      {hint && <p className="mt-1.5 break-words text-xs leading-relaxed text-muted">{hint}</p>}
     </div>
   );
 }
@@ -108,7 +108,7 @@ export function StatusBadge({ status }: { status: string }) {
 }
 
 const buttonBase =
-  "inline-flex h-11 min-w-[44px] items-center justify-center rounded-full px-5 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50";
+  "inline-flex min-h-11 min-w-[44px] items-center justify-center gap-2 rounded-full px-5 py-2.5 text-center text-sm font-semibold transition-colors active:brightness-95 disabled:cursor-not-allowed disabled:opacity-50";
 export const buttonStyles = {
   primary: `${buttonBase} bg-marine-700 text-white hover:bg-marine-800`,
   secondary: `${buttonBase} border border-line bg-white text-marine-900 hover:border-marine-700`,
@@ -133,7 +133,7 @@ export function LinkButton({
 
 export function EmptyState({ title, body, action }: { title: string; body?: string; action?: ReactNode }) {
   return (
-    <div className="rounded-2xl border border-dashed border-line bg-white p-10 text-center">
+    <div className="min-w-0 rounded-2xl border border-dashed border-line bg-white px-5 py-10 text-center sm:px-10">
       <h2 className="text-base font-semibold text-marine-900">{title}</h2>
       {body && <p className="mx-auto mt-1 max-w-md text-sm text-muted">{body}</p>}
       {action && <div className="mt-4 flex justify-center">{action}</div>}
@@ -157,8 +157,11 @@ export function Notice({ tone = "blue", children }: { tone?: "blue" | "red" | "g
 
 export function Table({ children }: { children: ReactNode }) {
   return (
-    <div className="overflow-x-auto rounded-2xl border border-line bg-white">
-      <table className="w-full min-w-[640px] text-left text-sm">{children}</table>
+    <div className="min-w-0 space-y-2">
+      <p className="text-xs text-muted sm:hidden">Swipe across the table to see all columns.</p>
+      <div role="region" aria-label="Scrollable data table" tabIndex={0} className="max-w-full overflow-x-auto overscroll-x-contain rounded-2xl border border-line bg-white focus-visible:outline-marine-700">
+        <table className="w-full min-w-[640px] text-left text-sm [&_tbody_tr]:transition-colors [&_tbody_tr:hover]:bg-marine-50/40 [&_thead]:bg-surface/60">{children}</table>
+      </div>
     </div>
   );
 }

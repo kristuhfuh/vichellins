@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useRef } from "react";
 import { signOut } from "@/app/(admin)/admin/actions";
 import type { Role } from "@/lib/admin/auth";
 import { Logo } from "@/components/Logo";
@@ -44,23 +45,31 @@ const groups: { title: string; items: Item[] }[] = [
 
 export function Sidebar({ name, role }: { name: string; role: Role }) {
   const pathname = usePathname();
+  const menu = useRef<HTMLDetailsElement>(null);
+  useEffect(() => {
+    const close = (event: PointerEvent) => {
+      if (menu.current?.open && !menu.current.contains(event.target as Node)) menu.current.open = false;
+    };
+    document.addEventListener("pointerdown", close);
+    return () => document.removeEventListener("pointerdown", close);
+  }, []);
   const isActive = (href: string) => (href === "/admin" ? pathname === href : pathname.startsWith(href));
 
   const nav = (
-    <nav aria-label="Admin" className="space-y-6">
+    <nav aria-label="Admin" className="space-y-5">
       {groups.map((g) => {
         const items = g.items.filter((i) => i.roles.includes(role));
         if (items.length === 0) return null;
         return (
           <div key={g.title}>
-            <p className="px-3 text-[11px] font-semibold uppercase tracking-wider text-marine-300">{g.title}</p>
+            <p className="px-3 text-xs font-semibold uppercase tracking-wider text-marine-200">{g.title}</p>
             <ul className="mt-2 space-y-0.5">
               {items.map((i) => (
                 <li key={i.href}>
                   <Link
                     href={i.href}
                     aria-current={isActive(i.href) ? "page" : undefined}
-                    className={`block min-h-[44px] rounded-lg px-3 py-2.5 text-sm ${isActive(i.href) ? "bg-marine-700 font-semibold text-white" : "text-marine-100 hover:bg-marine-800"}`}
+                    className={`block min-h-[44px] rounded-xl px-3 py-2.5 text-sm transition-colors ${isActive(i.href) ? "bg-marine-700 font-semibold text-white" : "text-marine-100 hover:bg-marine-800"}`}
                   >
                     {i.label}
                   </Link>
@@ -95,7 +104,8 @@ export function Sidebar({ name, role }: { name: string; role: Role }) {
 
   return (
     <>
-      <aside className="sticky top-5 hidden h-[calc(100vh-2.5rem)] w-64 shrink-0 flex-col justify-between overflow-y-auto rounded-2xl bg-marine-900 p-4 shadow-2xl [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:flex">
+      <a href="#admin-main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-full focus:bg-gold-400 focus:px-5 focus:py-3 focus:text-marine-900">Skip to content</a>
+      <aside className="sticky top-5 hidden h-[calc(100dvh-2.5rem)] w-56 shrink-0 flex-col justify-between gap-8 overflow-y-auto rounded-2xl bg-marine-900 p-4 [scrollbar-width:thin] xl:w-60 lg:flex">
         <div className="space-y-8">
           <div className="px-1 pt-1">
             <Logo inverted />
@@ -105,13 +115,20 @@ export function Sidebar({ name, role }: { name: string; role: Role }) {
         {account}
       </aside>
 
-      <header className="sticky top-3 z-30 mx-3 mb-3 flex items-center justify-between rounded-xl bg-marine-900 px-4 py-3 shadow-lg lg:hidden">
+      <header className="sticky top-3 z-30 mx-3 mb-3 flex items-center justify-between gap-2 rounded-2xl bg-marine-900 px-3 py-2.5 shadow-sm sm:mx-5 lg:hidden">
         <Logo inverted />
-        <details className="relative">
+        <details ref={menu} className="relative shrink-0" onKeyDown={(event) => {
+          if (event.key === "Escape" && menu.current) {
+            menu.current.open = false;
+            menu.current.querySelector("summary")?.focus();
+          }
+        }} onClick={(event) => {
+          if ((event.target as Element).closest("a") && menu.current) menu.current.open = false;
+        }}>
           <summary className="flex min-h-[44px] cursor-pointer list-none items-center rounded-lg px-3 text-sm font-medium text-white [&::-webkit-details-marker]:hidden">
             Menu
           </summary>
-          <div className="absolute right-0 top-12 max-h-[80vh] w-72 space-y-6 overflow-y-auto rounded-2xl bg-marine-900 p-4 shadow-xl ring-1 ring-marine-700">
+          <div className="absolute -right-3 top-14 max-h-[calc(100dvh-7rem)] w-[min(20rem,calc(100vw-1.5rem))] space-y-6 overflow-y-auto overscroll-contain rounded-2xl bg-marine-900 p-4 shadow-xl ring-1 ring-marine-700">
             {nav}
             {account}
           </div>

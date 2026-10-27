@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useMemo, useRef, useState, type ReactNode } from "react";
 import { addToCart } from "@/lib/cart-store";
@@ -77,6 +78,7 @@ export function ProductPurchase({
         maxQty: variant.stock,
         kind,
         tone,
+        image: product.images[0]?.url,
       },
       safeQty,
     );
@@ -88,14 +90,29 @@ export function ProductPurchase({
   );
 
   return (
-    <div className="grid gap-10 lg:grid-cols-2 lg:gap-14">
+    <div className="grid min-w-0 gap-8 lg:grid-cols-2 lg:gap-14 [&>div]:min-w-0">
       <div className="relative aspect-square overflow-hidden rounded-3xl bg-surface">
-        <ProductVisual kind={kind} tone={tone} className="h-full w-full p-12" />
-        <p className="absolute bottom-3 left-4 text-[11px] text-muted">Illustration. Photos coming soon.</p>
+        {product.images[0] ? (
+          <div className="absolute inset-5 sm:inset-8">
+            <Image
+              src={product.images[0].url}
+              alt={product.images[0].alt || product.name}
+              fill
+              sizes="(min-width: 1024px) 50vw, 100vw"
+              priority
+              className="object-contain"
+            />
+          </div>
+        ) : (
+          <>
+            <ProductVisual kind={kind} tone={tone} className="h-full w-full p-12" />
+            <p className="absolute bottom-3 left-4 text-[11px] text-muted">Illustration. Photos coming soon.</p>
+          </>
+        )}
       </div>
 
       <div>
-        <div className="flex items-baseline gap-3">
+        <div className="flex flex-wrap items-baseline gap-x-3 gap-y-2">
           <p className="text-3xl font-semibold tracking-tight text-marine-900">
             {variant ? formatPrice(variant.price) : "Unavailable"}
           </p>
@@ -109,7 +126,7 @@ export function ProductPurchase({
           )}
         </div>
 
-        <p className={`mt-2 text-sm font-medium ${soldOut ? "text-red-700" : variant && variant.stock <= 3 ? "text-gold-700" : "text-emerald-700"}`}>
+        <p className={`mt-2 text-sm font-medium ${soldOut ? "text-danger-700" : variant && variant.stock <= 3 ? "text-gold-700" : "text-success-700"}`}>
           {soldOut
             ? "Out of stock"
             : variant && variant.stock <= 3
@@ -130,7 +147,7 @@ export function ProductPurchase({
                 return (
                   <label
                     key={value}
-                    className={`relative flex cursor-pointer items-center gap-2 rounded-full border px-4 py-2 text-sm transition-colors has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-gold-500 ${selected ? "border-marine-700 bg-marine-50 font-semibold text-marine-800" : "border-line text-marine-900 hover:border-marine-300"} ${available ? "" : "opacity-50"}`}
+                    className={`relative flex min-h-11 cursor-pointer items-center gap-2 rounded-full border px-4 py-2 text-sm transition-colors has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-gold-500 ${selected ? "border-marine-700 bg-marine-50 font-semibold text-marine-800" : "border-line text-marine-900 hover:border-marine-300"} ${available ? "" : "opacity-50"}`}
                   >
                     <input
                       type="radio"
@@ -150,8 +167,8 @@ export function ProductPurchase({
           </fieldset>
         ))}
 
-        <div className="mt-6 flex flex-wrap items-center gap-3">
-          <div className="flex h-12 items-center rounded-full border border-line" role="group" aria-label="Quantity">
+        <div className="mt-6 grid grid-cols-2 items-center gap-3 sm:flex sm:flex-wrap">
+          <div className="col-span-2 flex h-12 w-fit items-center rounded-full border border-line" role="group" aria-label="Quantity">
             <button type="button" onClick={() => setQty(Math.max(1, safeQty - 1))} disabled={soldOut || safeQty <= 1} aria-label="Decrease quantity" className="h-12 w-11 text-lg text-marine-900 disabled:opacity-30">−</button>
             <span className="w-8 text-center text-sm font-semibold" aria-live="polite">{safeQty}</span>
             <button type="button" onClick={() => setQty(Math.min(maxQty, safeQty + 1))} disabled={soldOut || safeQty >= maxQty} aria-label="Increase quantity" className="h-12 w-11 text-lg text-marine-900 disabled:opacity-30">+</button>

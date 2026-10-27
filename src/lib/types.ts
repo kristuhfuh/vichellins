@@ -22,6 +22,7 @@ export type Category = {
   slug: string;
   description: string;
   kind: ProductKind;
+  imageUrl?: string;
 };
 
 export type Brand = {
@@ -69,6 +70,11 @@ export type Authenticity = {
   notes?: string;
 };
 
+export type ProductImage = {
+  url: string;
+  alt: string;
+};
+
 export type Product = {
   id: string;
   slug: string;
@@ -86,6 +92,7 @@ export type Product = {
   kind?: ProductKind;
   options: ProductOption[];
   variants: Variant[];
+  images: ProductImage[];
   tone: string;
   createdAt: string;
   popularity: number;

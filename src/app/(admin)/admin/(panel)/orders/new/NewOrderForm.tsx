@@ -81,7 +81,7 @@ export function NewOrderForm({
                     </span>
                     <span className="text-right text-xs">
                       <span className="block font-medium text-marine-900">{formatPrice(v.price)}</span>
-                      <span className={v.stock <= 0 ? "text-red-700" : "text-muted"}>{v.stock <= 0 ? "Out of stock" : `${v.stock} in stock`}</span>
+                      <span className={v.stock <= 0 ? "text-danger-700" : "text-muted"}>{v.stock <= 0 ? "Out of stock" : `${v.stock} in stock`}</span>
                     </span>
                   </button>
                 </li>
@@ -97,7 +97,7 @@ export function NewOrderForm({
               if (!v) return null;
               return (
                 <li key={l.variantId} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 text-sm">
-                  <span className="min-w-[200px] flex-1">
+                  <span className="min-w-0 basis-full flex-1 sm:basis-48">
                     <span className="font-medium text-marine-900">{v.label}</span>
                     <span className="block text-xs text-muted">{formatPrice(v.price)} each · {v.stock} in stock</span>
                   </span>
@@ -112,7 +112,7 @@ export function NewOrderForm({
                       onChange={(e) => setLines((all) => all.map((x) => (x.variantId === l.variantId ? { ...x, qty: Math.max(1, Math.min(Number(e.target.value) || 1, Math.min(10, v.stock))) } : x)))}
                       className="h-10 w-20 rounded-lg border border-line px-2 text-sm"
                     />
-                    <button type="button" onClick={() => setLines((all) => all.filter((x) => x.variantId !== l.variantId))} className="text-xs text-red-700 underline">
+                    <button type="button" onClick={() => setLines((all) => all.filter((x) => x.variantId !== l.variantId))} className="text-xs text-danger-700 underline">
                       Remove
                     </button>
                   </span>
@@ -127,7 +127,7 @@ export function NewOrderForm({
       </Card>
 
       <Card title="Customer and delivery">
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-4 @min-[34rem]:grid-cols-2">
           <Field label="Full name" htmlFor="name"><input id="name" value={fields.name} onChange={set("name")} required className={inputClass} /></Field>
           <Field label="Phone number" htmlFor="phone"><input id="phone" type="tel" value={fields.phone} onChange={set("phone")} required className={inputClass} placeholder="08012345678" /></Field>
           <Field label="Email (optional)" htmlFor="email"><input id="email" type="email" value={fields.email} onChange={set("email")} className={inputClass} /></Field>
@@ -136,7 +136,7 @@ export function NewOrderForm({
               {zones.map((z) => <option key={z.id} value={z.id}>{z.name} · {formatPrice(z.fee)}</option>)}
             </select>
           </Field>
-          <div className="sm:col-span-2">
+          <div className="@min-[34rem]:col-span-2">
             <Field label="Delivery address" htmlFor="address"><textarea id="address" value={fields.address} onChange={set("address")} rows={2} required className={`${inputClass} h-auto py-2.5`} /></Field>
           </div>
           <Field label="Payment" htmlFor="payment">

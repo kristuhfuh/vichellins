@@ -10,6 +10,7 @@ export type CategoryRow = {
   kind: string;
   sort_order: number;
   is_active: boolean;
+  image_url: string | null;
 };
 
 export type SpecDefRow = {
@@ -44,7 +45,7 @@ export const PRODUCT_KINDS = [
 export async function loadCategories(supabase: SupabaseClient): Promise<CategoryRow[]> {
   const { data } = await supabase
     .from("categories")
-    .select("id, parent_id, name, slug, description, kind, sort_order, is_active")
+    .select("*")
     .order("sort_order")
     .order("name");
   return (data ?? []) as CategoryRow[];
@@ -130,7 +131,7 @@ export const defaultHomepageContent: HomepageContent = {
   hero_accent: "all genuine, delivered fast.",
   hero_sub: "Real products, real warranties, same-day delivery across Lagos. And we're always a WhatsApp message away.",
   trust: [
-    { title: "Genuine products", body: "Every item is checked and verified before it is listed." },
+    { title: "Genuine products", body: "We check and verify every item before it goes on the site." },
     { title: "Warranty included", body: "Manufacturer or store warranty, clearly stated on each product." },
     { title: "Lagos delivery", body: "Same-day delivery on the mainland and island for most orders." },
     { title: "Inspect, then pay", body: "Choose pay on delivery and check your item first." },

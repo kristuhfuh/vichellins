@@ -41,7 +41,7 @@ Sign in at `/admin`. Roles: **owner** (everything, plus staff accounts), **staff
 - **Dashboard and analytics:** sales per day, best sellers, low stock, what needs attention, funnel and sources.
 - **Orders:** list and search, status workflow (pending, confirmed, packed, out for delivery, delivered; cancel or refund), payment status, staff notes, printable invoice and packing slip, and "Record an order" for WhatsApp, Instagram or phone orders.
 - **Products:** variants (colour, storage, RAM), warranty and authenticity, spec fields that depend on the category, photo upload, draft/published/archived.
-- **Categories and spec fields:** the client creates categories and defines what fields each has (RAM for laptops, battery life for speakers). Fields are inherited by sub-categories and can become shop filters.
+- **Categories and spec fields:** create categories with optional JPG, PNG or WebP artwork (up to 5 MB), replace or remove images, and define spec fields. Category card artwork stays anchored to the right on every screen size; cards highlight on a staggered seven-second cycle and respect reduced motion. Spec fields are inherited by sub-categories and can become shop filters.
 - **Inventory:** every stock change is logged with who and why. Sales and cancellations adjust stock automatically. Editing a product never changes stock.
 - **Delivery zones, discount codes, staff accounts, your own password.**
 
@@ -62,7 +62,9 @@ Things worth knowing:
 
 ## Tests
 
-`npm run test:db` applies the migrations to an in-memory Postgres and attacks them as a shopper, a customer, an editor and the owner (131 checks). The admin screens were also driven end to end in a browser against the local stack.
+`npm run test:db` applies the migrations to an in-memory Postgres and attacks them as a shopper, a customer, an editor and the owner (142 checks, including category artwork permissions). The admin screens were also driven end to end in a browser against the local stack.
+
+Category artwork is stored in the existing public `product-images` bucket under `categories/<category-id>/`. The base category schema already includes `image_url`, so existing projects with product image uploads configured need no additional migration.
 
 ## Before launch
 

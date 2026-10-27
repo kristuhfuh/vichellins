@@ -114,7 +114,7 @@ export function ImageManager({ productId, initial }: { productId: string; initia
       {error && <Notice tone="red">{error}</Notice>}
 
       {images.length > 0 && (
-        <ul className="mb-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <ul className="mb-5 grid gap-4 @min-[34rem]:grid-cols-2 @min-[54rem]:grid-cols-3">
           {images.map((image, i) => (
             <li key={image.id} className="rounded-xl border border-line p-3">
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -139,7 +139,7 @@ export function ImageManager({ productId, initial }: { productId: string; initia
                   <button type="button" onClick={() => move(i, 1)} disabled={i === images.length - 1} aria-label="Move later" className="rounded px-2 py-1 hover:bg-surface disabled:opacity-30">
                     →
                   </button>
-                  <button type="button" onClick={() => remove(image)} className="rounded px-2 py-1 text-red-700 hover:bg-red-50">
+                  <button type="button" onClick={() => remove(image)} className="rounded px-2 py-1 text-danger-700 hover:bg-danger-50">
                     Remove
                   </button>
                 </span>

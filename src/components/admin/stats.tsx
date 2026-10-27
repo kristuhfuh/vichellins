@@ -3,9 +3,9 @@ import type { ReactNode } from "react";
 
 export function StatTile({ label, value, hint }: { label: string; value: ReactNode; hint?: string }) {
   return (
-    <div className="rounded-2xl border border-line bg-white p-5">
+    <div className="min-w-0 rounded-2xl border border-line bg-white p-4 sm:p-5">
       <p className="text-sm text-muted">{label}</p>
-      <p className="mt-1 text-3xl font-semibold tracking-tight text-marine-900">{value}</p>
+      <p className="mt-2 break-words text-[clamp(1.5rem,3cqi,1.875rem)] font-semibold tracking-tight tabular-nums text-marine-900">{value}</p>
       {hint && <p className="mt-1 text-xs text-muted">{hint}</p>}
     </div>
   );
@@ -46,7 +46,7 @@ export function RangeTabs({ base, days, options = [7, 30, 90] }: { base: string;
           key={d}
           href={`${base}?days=${d}`}
           aria-current={d === days ? "page" : undefined}
-          className={`rounded-full px-3.5 py-1.5 text-sm font-medium ${d === days ? "bg-marine-700 text-white" : "bg-white text-marine-900 ring-1 ring-line hover:ring-marine-700"}`}
+          className={`inline-flex min-h-11 items-center rounded-full px-3.5 py-2 text-sm font-medium transition-colors ${d === days ? "bg-marine-700 text-white" : "bg-white text-marine-900 ring-1 ring-line hover:ring-marine-700"}`}
         >
           Last {d} days
         </Link>

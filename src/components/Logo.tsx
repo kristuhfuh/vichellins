@@ -12,9 +12,9 @@ export function LogoMark({ className = "h-8 w-8" }: { className?: string }) {
 
 export function Logo({ inverted = false }: { inverted?: boolean }) {
   return (
-    <Link href="/" className="flex items-center gap-2.5" aria-label={`${store.name} home`}>
+    <Link href="/" className="inline-flex min-h-11 shrink-0 items-center gap-2 sm:gap-2.5" aria-label={`${store.name} home`}>
       <LogoMark />
-      <span className={`text-lg font-semibold tracking-tight ${inverted ? "text-white" : "text-marine-900"}`}>
+      <span className={`whitespace-nowrap text-base font-semibold tracking-tight sm:text-lg ${inverted ? "text-white" : "text-marine-900"}`}>
         Vichellins<span className={inverted ? "text-gold-400" : "text-gold-600"}> Nation</span>
       </span>
     </Link>

@@ -1,8 +1,9 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { CONTENT, requireStaff } from "@/lib/admin/auth";
 import { done, fail, friendlyError, type ActionState } from "@/lib/admin/errors";
+import { CATALOG_TAG } from "@/lib/catalog";
 import { formString, slugify } from "@/lib/admin/util";
 import { createClient } from "@/lib/supabase/server";
 
@@ -17,6 +18,7 @@ export async function createBrand(_prev: ActionState, form: FormData): Promise<A
   const { error } = await supabase.from("brands").insert({ name, slug });
   if (error) return fail(error.code === "23505" ? "A brand with that name already exists." : friendlyError(error));
   revalidatePath("/admin/brands");
+  updateTag(CATALOG_TAG);
   return done(`Added ${name}.`);
 }
 
@@ -30,6 +32,7 @@ export async function updateBrand(_prev: ActionState, form: FormData): Promise<A
   const { error } = await supabase.from("brands").update({ name, slug: slugify(name) }).eq("id", id);
   if (error) return fail(error.code === "23505" ? "A brand with that name already exists." : friendlyError(error));
   revalidatePath("/admin/brands");
+  updateTag(CATALOG_TAG);
   return done("Saved.");
 }
 
@@ -42,5 +45,6 @@ export async function deleteBrand(_prev: ActionState, form: FormData): Promise<A
   const { error } = await supabase.from("brands").delete().eq("id", id);
   if (error) return fail(friendlyError(error));
   revalidatePath("/admin/brands");
+  updateTag(CATALOG_TAG);
   return done("Brand deleted. Its products now have no brand.");
 }

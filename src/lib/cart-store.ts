@@ -13,6 +13,8 @@ export type CartItem = {
   maxQty: number;
   kind: ProductKind;
   tone: string;
+  /** Primary product image URL. Falls back to ProductVisual when missing. */
+  image?: string;
 };
 
 const KEY = "vn-cart-v1";

@@ -19,15 +19,16 @@ import {
 import { deliveryZones, store } from "@/lib/config";
 import { formatPrice, warrantyLabel } from "@/lib/format";
 
-export function generateStaticParams() {
-  return getAllProducts().map((p) => ({ slug: p.slug }));
+export async function generateStaticParams() {
+  const products = await getAllProducts();
+  return products.map((p) => ({ slug: p.slug }));
 }
 
 export async function generateMetadata({ params }: PageProps<"/product/[slug]">): Promise<Metadata> {
   const { slug } = await params;
-  const product = getProductBySlug(slug);
+  const product = await getProductBySlug(slug);
   if (!product) return {};
-  const brand = getBrandById(product.brandId)?.name;
+  const brand = (await getBrandById(product.brandId))?.name;
   const description = `${product.description} From ${formatPrice(getMinPrice(product))}. ${warrantyLabel(product.warranty.months, product.warranty.type)}.`;
   return {
     title: `${product.name}${brand ? ` by ${brand}` : ""}`,
@@ -38,18 +39,21 @@ export async function generateMetadata({ params }: PageProps<"/product/[slug]">)
 
 export default async function ProductPage({ params }: PageProps<"/product/[slug]">) {
   const { slug } = await params;
-  const product = getProductBySlug(slug);
+  const product = await getProductBySlug(slug);
   if (!product) notFound();
 
-  const brand = getBrandById(product.brandId);
-  const path = getCategoryPath(product.categoryId);
+  const [brand, path, defs, related] = await Promise.all([
+    getBrandById(product.brandId),
+    getCategoryPath(product.categoryId),
+    getSpecDefinitions(product.categoryId),
+    getRelatedProducts(product),
+  ]);
   const kind = getProductKind(product);
   // Specs the shopper chooses as options (RAM, storage…) are shown in the buy box, not as a fixed row.
   const optionKeys = new Set(product.options.map((o) => optionKey(o.name)));
-  const specs = getSpecDefinitions(product.categoryId)
+  const specs = defs
     .map((def) => ({ def, value: product.specs[def.key] }))
     .filter((s) => s.value !== undefined && !optionKeys.has(s.def.key));
-  const related = getRelatedProducts(product);
   const fastest = deliveryZones[0];
 
   const jsonLd = {

@@ -12,7 +12,7 @@ const roleHelp = {
 
 export function AddStaffForm() {
   return (
-    <ActionForm action={createStaff} resetOnSuccess className="grid gap-4 sm:grid-cols-2">
+    <ActionForm action={createStaff} resetOnSuccess className="grid gap-4 @min-[34rem]:grid-cols-2">
       <Field label="Name" htmlFor="staff-name"><input id="staff-name" name="name" required className={inputClass} /></Field>
       <Field label="Email" htmlFor="staff-email"><input id="staff-email" name="email" type="email" required autoComplete="off" className={inputClass} /></Field>
       <Field label="Role" htmlFor="staff-role" hint={`Staff: ${roleHelp.staff} Editor: ${roleHelp.editor}`}>

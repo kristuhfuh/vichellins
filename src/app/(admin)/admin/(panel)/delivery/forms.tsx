@@ -8,7 +8,7 @@ type Zone = { id: string; name: string; fee: number; eta: string; is_active: boo
 
 function Fields({ zone, prefix }: { zone?: Zone; prefix: string }) {
   return (
-    <div className="grid gap-4 sm:grid-cols-2">
+    <div className="grid gap-4 @min-[34rem]:grid-cols-2">
       <Field label="Area name" htmlFor={`${prefix}-name`}>
         <input id={`${prefix}-name`} name="name" defaultValue={zone?.name} required className={inputClass} placeholder="e.g. Lekki and Ajah" />
       </Field>

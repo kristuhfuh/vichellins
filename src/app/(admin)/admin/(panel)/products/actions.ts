@@ -1,8 +1,9 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { COMMERCE, requireStaff } from "@/lib/admin/auth";
+import { CATALOG_TAG } from "@/lib/catalog";
 import { fail, friendlyError, type ActionState } from "@/lib/admin/errors";
 import {
   checkVariants,
@@ -62,5 +63,6 @@ export async function saveProduct(_prev: ActionState, form: FormData): Promise<A
 
   revalidatePath("/admin/products");
   revalidatePath("/admin");
+  updateTag(CATALOG_TAG);
   redirect(`/admin/products/${id}?${payload.id ? "saved" : "created"}=1`);
 }

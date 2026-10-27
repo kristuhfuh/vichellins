@@ -92,7 +92,7 @@ export default async function OrdersPage({ searchParams }: PageProps<"/admin/ord
 
       <form className="mb-5 flex flex-wrap items-end gap-3" role="search">
         {status && <input type="hidden" name="status" value={status} />}
-        <div className="min-w-[220px] flex-1">
+        <div className="min-w-0 basis-full flex-1 sm:basis-56">
           <label htmlFor="q" className="text-sm font-medium text-marine-900">Search</label>
           <input id="q" name="q" defaultValue={q} placeholder="Order number, name or phone" className={inputClass} />
         </div>

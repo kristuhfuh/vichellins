@@ -44,7 +44,7 @@ export default async function AnalyticsPage({ searchParams }: PageProps<"/admin/
         </Notice>
       )}
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-6 @min-[48rem]:grid-cols-2">
         <Card title="From looking to buying" description="Each step is a count of events in this period, not of people.">
           <BarList
             empty="No activity yet."

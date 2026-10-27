@@ -12,8 +12,8 @@ export default async function ShopPage({ searchParams }: PageProps<"/shop">) {
     <ShopView
       basePath="/shop"
       params={params}
-      heading="Give all you need"
-      intro="Genuine gadgets with warranty, delivered across Lagos."
+      heading="Everything you need."
+      intro="Phones, laptops, audio, smart home — real stock, real warranty, delivered across Lagos."
     />
   );
 }

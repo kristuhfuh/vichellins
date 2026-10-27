@@ -26,7 +26,7 @@ insert into site_settings (key, value) values (
     'hero_accent',   'all genuine, delivered fast.',
     'hero_sub',      'Real products, real warranties, same-day delivery across Lagos. And we''re always a WhatsApp message away.',
     'trust', jsonb_build_array(
-      jsonb_build_object('title', 'Genuine products',   'body', 'Every item is checked and verified before it is listed.'),
+      jsonb_build_object('title', 'Genuine products',   'body', 'We check and verify every item before it goes on the site.'),
       jsonb_build_object('title', 'Warranty included',  'body', 'Manufacturer or store warranty, clearly stated on each product.'),
       jsonb_build_object('title', 'Lagos delivery',     'body', 'Same-day delivery on the mainland and island for most orders.'),
       jsonb_build_object('title', 'Inspect, then pay',  'body', 'Choose pay on delivery and check your item first.')

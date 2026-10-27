@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Badge, Card, EmptyState, PageHeader, Table, td, th } from "@/components/admin/ui";
 import { CONTENT, requireStaff } from "@/lib/admin/auth";
 import { flattenTree, loadCategories, loadSpecDefs } from "@/lib/admin/queries";
@@ -49,7 +50,8 @@ export default async function CategoriesPage() {
               {tree.map((c) => (
                 <tr key={c.id}>
                   <td className={td}>
-                    <span style={{ paddingLeft: `${c.depth * 20}px` }} className="font-medium">
+                    <span style={{ paddingLeft: `${Math.min(c.depth, 5) * 20}px` }} className="inline-flex items-center gap-3 font-medium">
+                      {c.image_url && <Image src={c.image_url} alt="" width={44} height={44} className="h-11 w-11 shrink-0 rounded-lg bg-surface object-contain" />}
                       {c.depth > 0 && <span className="mr-1.5 text-muted">↳</span>}
                       {c.name}
                     </span>
@@ -58,7 +60,7 @@ export default async function CategoriesPage() {
                   <td className={td}>{specCount.get(c.id) ?? 0}</td>
                   <td className={td}>{c.is_active ? <Badge tone="green">Visible</Badge> : <Badge>Hidden</Badge>}</td>
                   <td className={`${td} text-right`}>
-                    <Link href={`/admin/categories/${c.id}`} className="text-sm font-medium text-marine-700 underline">
+                    <Link href={`/admin/categories/${c.id}`} className="inline-flex min-h-11 items-center rounded-lg px-3 text-sm font-medium text-marine-700 underline underline-offset-4 hover:bg-marine-50">
                       Edit
                     </Link>
                   </td>

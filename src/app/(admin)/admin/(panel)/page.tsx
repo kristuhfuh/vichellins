@@ -56,7 +56,7 @@ export default async function DashboardPage({ searchParams }: PageProps<"/admin"
       <PageHeader title={`Hello, ${staff.name}`} description="How the shop is doing." />
       {params.denied && <Notice tone="gold">You don&apos;t have access to that page.</Notice>}
 
-      <section aria-label="Needs attention" className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <section aria-label="Needs attention" className="mb-6 grid gap-3 @min-[34rem]:grid-cols-2 @min-[54rem]:grid-cols-4">
         {[
           { label: "Waiting for you to confirm", value: d.awaiting_confirmation, href: "/admin/orders?status=pending" },
           { label: "Ready to pack or send", value: d.awaiting_dispatch, href: "/admin/orders?status=confirmed" },
@@ -72,7 +72,7 @@ export default async function DashboardPage({ searchParams }: PageProps<"/admin"
 
       <RangeTabs base="/admin" days={d.days} />
 
-      <section aria-label="Key figures" className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <section aria-label="Key figures" className="mb-6 grid gap-4 @min-[34rem]:grid-cols-2 @min-[54rem]:grid-cols-4">
         <StatTile label="Orders" value={d.orders} hint={`Last ${d.days} days`} />
         <StatTile label="Sales" value={formatPrice(d.booked_revenue)} hint="Cancelled and refunded orders excluded" />
         <StatTile label="Money received" value={formatPrice(d.collected_revenue)} hint="Orders marked as paid" />
@@ -83,7 +83,7 @@ export default async function DashboardPage({ searchParams }: PageProps<"/admin"
         <RevenueChart data={d.daily} title={`Sales per day, last ${d.days} days`} />
       </Card>
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-2">
+      <div className="mt-6 grid gap-6 @min-[48rem]:grid-cols-2">
         <Card title="Best sellers" description="By units sold in this period.">
           <BarList
             empty="No sales in this period yet."
@@ -106,7 +106,7 @@ export default async function DashboardPage({ searchParams }: PageProps<"/admin"
                     <span className="block truncate font-medium text-marine-900">{l.name}</span>
                     <span className="block truncate text-xs text-muted">{[l.variant_label, l.sku].filter(Boolean).join(" · ")}</span>
                   </span>
-                  <Link href={`/admin/inventory?q=${encodeURIComponent(l.sku)}`} className={`shrink-0 font-semibold underline ${l.stock === 0 ? "text-red-700" : "text-marine-800"}`}>
+                  <Link href={`/admin/inventory?q=${encodeURIComponent(l.sku)}`} className={`shrink-0 font-semibold underline ${l.stock === 0 ? "text-danger-700" : "text-marine-800"}`}>
                     {l.stock === 0 ? "Out" : `${l.stock} left`}
                   </Link>
                 </li>

@@ -61,11 +61,16 @@ export default async function ProductsPage({ searchParams }: PageProps<"/admin/p
       <PageHeader
         title="Products"
         description={`${total} product${total === 1 ? "" : "s"}`}
-        actions={<LinkButton href="/admin/products/new" variant="primary">Add product</LinkButton>}
+        actions={
+          <>
+            <LinkButton href="/admin/products/import">Bulk import</LinkButton>
+            <LinkButton href="/admin/products/new" variant="primary">Add product</LinkButton>
+          </>
+        }
       />
 
       <form className="mb-5 flex flex-wrap items-end gap-3" role="search">
-        <div className="min-w-[200px] flex-1">
+        <div className="min-w-0 basis-full flex-1 sm:basis-48">
           <label htmlFor="q" className="text-sm font-medium text-marine-900">Search</label>
           <input id="q" name="q" defaultValue={q} placeholder="Product name" className={inputClass} />
         </div>
@@ -142,7 +147,7 @@ export default async function ProductsPage({ searchParams }: PageProps<"/admin/p
                         : `${formatPrice(Math.min(...prices))} – ${formatPrice(Math.max(...prices))}`}
                   </td>
                   <td className={td}>
-                    {stock === 0 ? <span className="font-medium text-red-700">Out of stock</span> : stock}
+                    {stock === 0 ? <span className="font-medium text-danger-700">Out of stock</span> : stock}
                     <span className="block text-xs text-muted">{active.length} variant{active.length === 1 ? "" : "s"}</span>
                   </td>
                 </tr>

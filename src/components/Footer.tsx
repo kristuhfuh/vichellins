@@ -10,37 +10,41 @@ const socials = [
   { label: "Facebook", url: store.social.facebook },
 ].filter((s): s is { label: string; url: string } => Boolean(s.url));
 
-const columns = [
-  {
-    title: "Shop",
-    links: getTopCategories().map((c) => ({ href: `/category/${c.slug}`, label: c.name })),
-  },
-  {
-    title: "Help",
-    links: [
-      { href: "/contact", label: "Contact us" },
-      { href: "/faq", label: "FAQ" },
-      { href: "/delivery-returns", label: "Delivery & returns" },
-      { href: "/warranty", label: "Warranty" },
-    ],
-  },
-  {
-    title: "Company",
-    links: [
-      { href: "/about", label: "About us" },
-      { href: "/privacy", label: "Privacy policy" },
-      { href: "/terms", label: "Terms of service" },
-    ],
-  },
-];
+const helpColumn = {
+  title: "Help",
+  links: [
+    { href: "/contact", label: "Contact us" },
+    { href: "/faq", label: "FAQ" },
+    { href: "/delivery-returns", label: "Delivery & returns" },
+    { href: "/warranty", label: "Warranty" },
+  ],
+};
 
-export function Footer() {
+const companyColumn = {
+  title: "Company",
+  links: [
+    { href: "/about", label: "About us" },
+    { href: "/privacy", label: "Privacy policy" },
+    { href: "/terms", label: "Terms of service" },
+  ],
+};
+
+export async function Footer() {
+  const topCategories = await getTopCategories();
+  const columns = [
+    {
+      title: "Shop",
+      links: topCategories.map((c) => ({ href: `/category/${c.slug}`, label: c.name })),
+    },
+    helpColumn,
+    companyColumn,
+  ];
   return (
     <footer className="mt-24 px-4 pb-6 sm:px-6">
       <div className="mx-auto max-w-7xl overflow-hidden rounded-3xl bg-marine-900 text-white">
-        <div className="grid gap-8 p-8 sm:p-12 lg:grid-cols-2 lg:items-end">
+        <div className="grid gap-8 p-6 sm:p-12 lg:grid-cols-2 lg:items-end">
           <div>
-            <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">
+            <h2 className="text-[clamp(1.5rem,4vw,2.25rem)] font-semibold leading-tight tracking-tight">
               Not sure what to get?
               <br />
               <span className="text-gold-400">We&apos;re here on WhatsApp.</span>
@@ -84,7 +88,7 @@ export function Footer() {
             <ul className="mt-4 space-y-2.5">
               {col.links.map((l) => (
                 <li key={l.href}>
-                  <Link href={l.href} className="text-sm text-muted hover:text-marine-900">
+                  <Link href={l.href} className="inline-flex min-h-11 items-center text-sm text-muted hover:text-marine-900">
                     {l.label}
                   </Link>
                 </li>

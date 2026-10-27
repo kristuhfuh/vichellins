@@ -1,18 +1,22 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { CONTENT, requireStaff } from "@/lib/admin/auth";
+import { removeCategoryImage, uploadCategoryImage } from "@/lib/admin/category-images";
 import { done, fail, friendlyError, type ActionState } from "@/lib/admin/errors";
 import { descendantIds, loadCategories, PRODUCT_KINDS } from "@/lib/admin/queries";
+import { CATALOG_TAG } from "@/lib/catalog";
 import { formString, slugify, specKey } from "@/lib/admin/util";
 import { createClient } from "@/lib/supabase/server";
 
 const SPEC_TYPES = ["text", "number", "select", "boolean"] as const;
 
-function refresh() {
+function refresh(id?: string) {
   revalidatePath("/admin/categories");
+  if (id) revalidatePath(`/admin/categories/${id}`);
   revalidatePath("/admin/products");
+  updateTag(CATALOG_TAG);
 }
 
 export async function createCategory(_prev: ActionState, form: FormData): Promise<ActionState> {
@@ -24,14 +28,22 @@ export async function createCategory(_prev: ActionState, form: FormData): Promis
   const kind = formString(form, "kind");
 
   const supabase = await createClient();
+  const id = crypto.randomUUID();
+  const image = await uploadCategoryImage(supabase, form, id);
+  if (image.error) return fail(image.error);
   const { error } = await supabase.from("categories").insert({
+    id,
     name,
     slug,
     parent_id: formString(form, "parent_id") || null,
     description: formString(form, "description"),
     kind: (PRODUCT_KINDS as readonly string[]).includes(kind) ? kind : "phone",
+    ...(image.url ? { image_url: image.url } : {}),
   });
-  if (error) return fail(error.code === "23505" ? "A category with that name already exists." : friendlyError(error));
+  if (error) {
+    await removeCategoryImage(supabase, image.url ?? null, id);
+    return fail(error.code === "23505" ? "A category with that name already exists." : friendlyError(error));
+  }
   refresh();
   return done(`Added ${name}. Open it to add spec fields.`);
 }
@@ -54,6 +66,13 @@ export async function updateCategory(_prev: ActionState, form: FormData): Promis
     }
   }
 
+  const { data: current, error: loadError } = await supabase.from("categories").select("*").eq("id", id).single();
+  if (loadError || !current) return fail("Couldn't find this category. Reload the page and try again.");
+  const image = await uploadCategoryImage(supabase, form, id);
+  if (image.error) return fail(image.error);
+  const removeImage = form.get("remove_image") === "on";
+  const imageChanged = Boolean(image.url || removeImage);
+
   const { error } = await supabase
     .from("categories")
     .update({
@@ -64,10 +83,15 @@ export async function updateCategory(_prev: ActionState, form: FormData): Promis
       kind: (PRODUCT_KINDS as readonly string[]).includes(kind) ? kind : "phone",
       is_active: form.get("is_active") === "on",
       sort_order: Number.parseInt(formString(form, "sort_order"), 10) || 0,
+      ...(imageChanged ? { image_url: image.url ?? null } : {}),
     })
     .eq("id", id);
-  if (error) return fail(error.code === "23505" ? "Another category already uses that name or web address." : friendlyError(error));
-  refresh();
+  if (error) {
+    await removeCategoryImage(supabase, image.url ?? null, id);
+    return fail(error.code === "23505" ? "Another category already uses that name or web address." : friendlyError(error));
+  }
+  if (imageChanged) await removeCategoryImage(supabase, current.image_url ?? null, id);
+  refresh(id);
   return done("Saved.");
 }
 
@@ -84,8 +108,10 @@ export async function deleteCategory(_prev: ActionState, form: FormData): Promis
   if (children) return fail("Move or delete its sub-categories first.");
   if (products) return fail(`${products} product${products === 1 ? " is" : "s are"} in this category. Move them to another category first.`);
 
+  const { data: current } = await supabase.from("categories").select("*").eq("id", id).maybeSingle();
   const { error } = await supabase.from("categories").delete().eq("id", id);
   if (error) return fail(friendlyError(error));
+  await removeCategoryImage(supabase, current?.image_url ?? null, id);
   refresh();
   redirect("/admin/categories");
 }

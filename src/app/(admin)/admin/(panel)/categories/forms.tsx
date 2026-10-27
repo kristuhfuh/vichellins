@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ActionForm, SubmitButton } from "@/components/admin/forms";
 import { Field, inputClass } from "@/components/admin/ui";
+import { CategoryImageField } from "@/components/admin/CategoryImageField";
 import { createCategory, createSpec, deleteCategory, deleteSpec, updateCategory, updateSpec } from "./actions";
 
 type Option = { id: string; name: string; depth: number };
@@ -39,19 +40,20 @@ function ParentSelect({ options, value, exclude }: { options: Option[]; value?: 
 
 export function AddCategoryForm({ options }: { options: Option[] }) {
   return (
-    <ActionForm action={createCategory} resetOnSuccess className="grid gap-4 sm:grid-cols-2">
+    <ActionForm action={createCategory} resetOnSuccess className="grid gap-4 @min-[34rem]:grid-cols-2">
       <Field label="Name" htmlFor="name">
         <input id="name" name="name" required className={inputClass} placeholder="e.g. Tablets" />
       </Field>
       <Field label="Inside" htmlFor="parent_id" hint="Pick a parent to make this a sub-category.">
         <ParentSelect options={options} />
       </Field>
-      <div className="sm:col-span-2">
+      <div className="@min-[34rem]:col-span-2">
         <Field label="Short description" htmlFor="description" hint="Shown at the top of the category page.">
           <input id="description" name="description" className={inputClass} />
         </Field>
       </div>
-      <Field label="Placeholder picture" htmlFor="kind" hint="Used until real product photos are added.">
+      <CategoryImageField />
+      <Field label="Fallback illustration" htmlFor="kind" hint="Used when the category or its products have no photo.">
         <select id="kind" name="kind" className={inputClass}>
           {kinds.map(([v, l]) => (
             <option key={v} value={v}>
@@ -72,12 +74,12 @@ export function EditCategoryForm({
   options,
   blocked,
 }: {
-  category: { id: string; name: string; slug: string; description: string; kind: string; parent_id: string | null; is_active: boolean; sort_order: number };
+  category: { id: string; name: string; slug: string; description: string; kind: string; parent_id: string | null; is_active: boolean; sort_order: number; image_url?: string | null };
   options: Option[];
   blocked: Set<string>;
 }) {
   return (
-    <ActionForm action={updateCategory} className="grid gap-4 sm:grid-cols-2">
+    <ActionForm action={updateCategory} className="grid gap-4 @min-[34rem]:grid-cols-2">
       <input type="hidden" name="id" value={category.id} />
       <Field label="Name" htmlFor="name">
         <input id="name" name="name" defaultValue={category.name} required className={inputClass} />
@@ -88,7 +90,7 @@ export function EditCategoryForm({
       <Field label="Inside" htmlFor="parent_id">
         <ParentSelect options={options} value={category.parent_id} exclude={blocked} />
       </Field>
-      <Field label="Placeholder picture" htmlFor="kind">
+      <Field label="Fallback illustration" htmlFor="kind">
         <select id="kind" name="kind" defaultValue={category.kind} className={inputClass}>
           {kinds.map(([v, l]) => (
             <option key={v} value={v}>
@@ -97,11 +99,12 @@ export function EditCategoryForm({
           ))}
         </select>
       </Field>
-      <div className="sm:col-span-2">
+      <div className="@min-[34rem]:col-span-2">
         <Field label="Short description" htmlFor="description">
           <input id="description" name="description" defaultValue={category.description} className={inputClass} />
         </Field>
       </div>
+      <CategoryImageField initialUrl={category.image_url} />
       <Field label="Order in menus" htmlFor="sort_order" hint="Lower numbers come first.">
         <input id="sort_order" name="sort_order" type="number" defaultValue={category.sort_order} className={inputClass} />
       </Field>
@@ -109,7 +112,7 @@ export function EditCategoryForm({
         <input type="checkbox" name="is_active" defaultChecked={category.is_active} className="h-4 w-4 accent-marine-700" />
         Visible in the shop
       </label>
-      <div className="sm:col-span-2">
+      <div className="@min-[34rem]:col-span-2">
         <SubmitButton>Save category</SubmitButton>
       </div>
     </ActionForm>
@@ -142,7 +145,7 @@ type Spec = {
 function SpecFields({ spec, idPrefix }: { spec?: Spec; idPrefix: string }) {
   const [type, setType] = useState(spec?.type ?? "text");
   return (
-    <div className="grid gap-4 sm:grid-cols-2">
+    <div className="grid gap-4 @min-[34rem]:grid-cols-2">
       <Field label="Field name" htmlFor={`${idPrefix}-label`} hint={spec ? `Stored as "${spec.key}". The stored name never changes.` : "For example RAM, Screen size, Battery life."}>
         <input id={`${idPrefix}-label`} name="label" defaultValue={spec?.label} required className={inputClass} />
       </Field>
@@ -160,7 +163,7 @@ function SpecFields({ spec, idPrefix }: { spec?: Spec; idPrefix: string }) {
         </Field>
       )}
       {type === "select" && (
-        <div className="sm:col-span-2">
+        <div className="@min-[34rem]:col-span-2">
           <Field label="Choices" htmlFor={`${idPrefix}-options`} hint="Separate with commas, e.g. 64GB, 128GB, 256GB. Shoppers can filter by these.">
             <input id={`${idPrefix}-options`} name="options" defaultValue={spec?.options?.join(", ")} className={inputClass} />
           </Field>

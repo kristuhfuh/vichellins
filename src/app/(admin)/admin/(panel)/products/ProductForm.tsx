@@ -260,8 +260,8 @@ export function ProductForm({
       <input type="hidden" name="payload" value={JSON.stringify(payload)} />
 
       <Card title="Basics">
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="sm:col-span-2">
+        <div className="grid gap-4 @min-[34rem]:grid-cols-2">
+          <div className="@min-[34rem]:col-span-2">
             <Field label="Product name" htmlFor="name">
               <input
                 id="name"
@@ -277,7 +277,7 @@ export function ProductForm({
               />
             </Field>
           </div>
-          <div className="sm:col-span-2">
+          <div className="@min-[34rem]:col-span-2">
             <Field
               label="Web address"
               htmlFor="slug"
@@ -329,12 +329,12 @@ export function ProductForm({
             <input type="checkbox" checked={featured} onChange={(e) => setFeatured(e.target.checked)} className="h-4 w-4 accent-marine-700" />
             Feature on the home page
           </label>
-          <div className="sm:col-span-2">
+          <div className="@min-[34rem]:col-span-2">
             <Field label="Description" htmlFor="description">
               <textarea id="description" value={description} onChange={bind(setDescription)} rows={4} maxLength={5000} className={`${inputClass} h-auto py-2.5`} />
             </Field>
           </div>
-          <div className="sm:col-span-2">
+          <div className="@min-[34rem]:col-span-2">
             <Field label="Highlights" htmlFor="highlights" hint="One per line, e.g. “40 hour battery”. Shown as bullet points (max 12).">
               <textarea id="highlights" value={highlights} onChange={bind(setHighlights)} rows={3} className={`${inputClass} h-auto py-2.5`} />
             </Field>
@@ -343,7 +343,7 @@ export function ProductForm({
       </Card>
 
       <Card title="Condition, warranty and authenticity" description="Shown on the product page so buyers know exactly what they're getting.">
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-4 @min-[34rem]:grid-cols-2">
           <Field label="Condition" htmlFor="condition">
             <select id="condition" value={condition} onChange={(e) => setCondition(e.target.value as ProductData["condition"])} className={inputClass}>
               <option value="new">New</option>
@@ -362,7 +362,7 @@ export function ProductForm({
           <Field label="Warranty length (months)" htmlFor="warranty-months">
             <input id="warranty-months" type="number" min={0} max={120} value={warrantyType === "none" ? 0 : warrantyMonths} disabled={warrantyType === "none"} onChange={bind(setWarrantyMonths)} className={inputClass} />
           </Field>
-          <div className="sm:col-span-2">
+          <div className="@min-[34rem]:col-span-2">
             <Field label="Warranty notes" htmlFor="warranty-notes" hint="What is and isn't covered.">
               <input id="warranty-notes" value={warrantyNotes} onChange={bind(setWarrantyNotes)} maxLength={500} className={inputClass} />
             </Field>
@@ -384,7 +384,7 @@ export function ProductForm({
         description={specDefs.length > 0 ? "These fields come from the category. Edit them under Categories & specs." : "This category has no spec fields yet. Add some under Categories & specs."}
       >
         {specDefs.length > 0 && (
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-4 @min-[34rem]:grid-cols-2">
             {specDefs.map((d) => (
               <Field key={d.key} label={`${d.label}${d.unit ? ` (${d.unit})` : ""}${d.required ? " *" : ""}`} htmlFor={`spec-${d.key}`}>
                 {d.type === "select" || d.type === "boolean" ? (
@@ -428,7 +428,7 @@ export function ProductForm({
       >
         <div className="space-y-3">
           {options.map((o, i) => (
-            <div key={i} className="grid gap-3 rounded-xl bg-surface p-3 sm:grid-cols-[180px_1fr_auto]">
+            <div key={i} className="grid gap-3 rounded-xl bg-surface p-3 @min-[42rem]:grid-cols-[minmax(0,180px)_minmax(0,1fr)_auto]">
               <div>
                 <label htmlFor={`opt-name-${i}`} className="sr-only">
                   Option name
@@ -441,7 +441,7 @@ export function ProductForm({
                 </label>
                 <input id={`opt-values-${i}`} value={o.valuesText} onChange={(e) => setOptions((all) => all.map((x, j) => (j === i ? { ...x, valuesText: e.target.value } : x)))} placeholder="Values, separated by commas: Black, Silver, Gold" className={`${inputClass} mt-0`} />
               </div>
-              <button type="button" onClick={() => setOptions((all) => all.filter((_, j) => j !== i))} className="h-11 rounded-lg px-3 text-sm text-red-700 hover:bg-red-50">
+              <button type="button" onClick={() => setOptions((all) => all.filter((_, j) => j !== i))} className="h-11 rounded-lg px-3 text-sm text-danger-700 hover:bg-danger-50">
                 Remove
               </button>
             </div>
@@ -475,10 +475,10 @@ export function ProductForm({
               {rows.map((r, i) => {
                 const stale = isStale(r);
                 return (
-                  <tr key={r.id ?? `new-${i}`} className={stale ? "bg-red-50" : r.active ? "" : "bg-surface/60"}>
+                  <tr key={r.id ?? `new-${i}`} className={stale ? "bg-danger-50" : r.active ? "" : "bg-surface/60"}>
                     <td className="px-3 py-2 font-medium text-marine-900">
                       {label(r)}
-                      {stale && <span className="ml-2 text-xs font-normal text-red-700">doesn&apos;t match options</span>}
+                      {stale && <span className="ml-2 text-xs font-normal text-danger-700">doesn&apos;t match options</span>}
                       {!r.id && !stale && <span className="ml-2 text-xs font-normal text-marine-700">new</span>}
                     </td>
                     <td className="px-3 py-2">
@@ -509,7 +509,7 @@ export function ProductForm({
                       {r.id ? (
                         <input type="checkbox" aria-label={`${label(r)} is active`} checked={r.active} onChange={(e) => updateRow(i, { active: e.target.checked })} className="h-4 w-4 accent-marine-700" />
                       ) : (
-                        <button type="button" onClick={() => setRows((all) => all.filter((_, j) => j !== i))} className="text-xs text-red-700 underline">
+                        <button type="button" onClick={() => setRows((all) => all.filter((_, j) => j !== i))} className="text-xs text-danger-700 underline">
                           Remove
                         </button>
                       )}
@@ -546,9 +546,9 @@ export function ProductForm({
             Cancel
           </Link>
           <div className="min-w-0 flex-1">
-            {state?.message && !state.ok && <p role="alert" className="text-sm font-medium text-red-700">{state.message}</p>}
+            {state?.message && !state.ok && <p role="alert" className="text-sm font-medium text-danger-700">{state.message}</p>}
             {visibleProblems.length > 0 && (
-              <ul className="text-sm text-red-700">
+              <ul className="text-sm text-danger-700">
                 {visibleProblems.map((p) => (
                   <li key={p}>{p}</li>
                 ))}

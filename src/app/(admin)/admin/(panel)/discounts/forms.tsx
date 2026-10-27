@@ -21,7 +21,7 @@ export type Discount = {
 function Fields({ d, prefix }: { d?: Discount; prefix: string }) {
   const [kind, setKind] = useState(d?.kind ?? "percent");
   return (
-    <div className="grid gap-4 sm:grid-cols-2">
+    <div className="grid gap-4 @min-[34rem]:grid-cols-2">
       {!d && (
         <Field label="Code" htmlFor={`${prefix}-code`} hint="Shoppers type this at checkout, e.g. WELCOME10.">
           <input id={`${prefix}-code`} name="code" required maxLength={24} className={`${inputClass} uppercase`} />
@@ -72,7 +72,7 @@ export function DiscountRow({ d }: { d: Discount }) {
           <span className="flex flex-wrap items-center gap-3 text-sm text-muted">
             <span>{d.kind === "percent" ? `${d.value}% off` : `₦${d.value.toLocaleString("en-NG")} off`}</span>
             <span>{d.used_count}{d.max_uses ? ` / ${d.max_uses}` : ""} used</span>
-            <span className={d.is_active ? "font-medium text-emerald-700" : "font-medium text-muted"}>{d.is_active ? "Active" : "Off"}</span>
+            <span className={d.is_active ? "font-medium text-success-700" : "font-medium text-muted"}>{d.is_active ? "Active" : "Off"}</span>
             <span className="underline">Edit</span>
           </span>
         </summary>

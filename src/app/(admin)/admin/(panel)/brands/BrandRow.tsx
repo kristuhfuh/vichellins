@@ -10,7 +10,7 @@ export function BrandRow({ id, name, productCount }: { id: string; name: string;
       <div className="flex flex-wrap items-end gap-3">
         <ActionForm action={updateBrand} className="flex flex-1 flex-wrap items-end gap-3">
           <input type="hidden" name="id" value={id} />
-          <div className="min-w-[200px] flex-1">
+          <div className="min-w-0 basis-full flex-1 sm:basis-48">
             <label htmlFor={`brand-${id}`} className="sr-only">
               Brand name
             </label>

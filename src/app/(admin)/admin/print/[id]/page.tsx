@@ -79,7 +79,7 @@ export default async function PrintOrderPage({ params, searchParams }: PageProps
         </thead>
         <tbody>
           {items.map((i: { id: string; name: string; variant_label: string; sku: string | null; unit_price: number; qty: number; warranty_months: number; warranty_type: string }) => (
-            <tr key={i.id} className="border-b border-neutral-300">
+            <tr key={i.id} className="border-b border-line">
               {packing && <td className="py-2"><span className="inline-block h-4 w-4 border border-black" /></td>}
               <td className="py-2">
                 {i.name}
@@ -110,7 +110,7 @@ export default async function PrintOrderPage({ params, searchParams }: PageProps
           <p className="whitespace-pre-line">{order.notes}</p>
         </section>
       )}
-      <footer className="mt-10 border-t border-neutral-300 pt-3 text-xs">
+      <footer className="mt-10 border-t border-line pt-3 text-xs">
         Thank you for shopping with {store.name}. Keep this document for warranty claims.
       </footer>
     </div>

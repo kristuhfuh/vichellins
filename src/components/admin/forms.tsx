@@ -93,14 +93,17 @@ export function ActionForm({
   const ref = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
-    if (resetOnSuccess && state?.ok) ref.current?.reset();
+    if (state?.ok) {
+      if (resetOnSuccess) ref.current?.reset();
+      ref.current?.dispatchEvent(new Event("action-success"));
+    }
   }, [state, resetOnSuccess]);
 
   return (
     <PendingProvider pending={pending}>
-      <form ref={ref} onSubmit={onSubmit} className={className}>
-        {state?.message && <Notice tone={state.ok ? "green" : "red"}>{state.message}</Notice>}
-        {children}
+      <form ref={ref} onSubmit={onSubmit} className={className} aria-busy={pending}>
+        {state?.message && <div className="col-span-full"><Notice tone={state.ok ? "green" : "red"}>{state.message}</Notice></div>}
+        <fieldset disabled={pending} className="contents">{children}</fieldset>
       </form>
     </PendingProvider>
   );
