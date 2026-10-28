@@ -52,7 +52,8 @@ export function ImportForm() {
 
       {state.results.length > 0 && (
         <section aria-label="Import results" className="mt-10">
-          <h2 className="text-base font-semibold text-marine-900">Row-by-row results</h2>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold-700">Import log</p>
+          <h2 className="mt-1 text-base font-semibold text-marine-900">Row-by-row results</h2>
           <p className="mt-1 text-sm text-muted">
             {state.results.filter((r) => r.status === "created").length} created,{" "}
             {state.results.filter((r) => r.status === "error").length} skipped.

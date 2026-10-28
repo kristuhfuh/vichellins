@@ -73,7 +73,10 @@ export default async function AnalyticsPage({ searchParams }: PageProps<"/admin/
         </Card>
       </div>
 
-      <h2 className="mb-3 mt-8 text-base font-semibold text-marine-900">Products: views against sales</h2>
+      <div className="mb-3 mt-10">
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold-700">What&apos;s working</p>
+        <h2 className="mt-1 text-base font-semibold text-marine-900">Products: views against sales</h2>
+      </div>
       <p className="mb-3 max-w-2xl text-sm text-muted">
         A product with many views and no sales may need a better photo, price or description. One with few views but good sales deserves more promotion.
       </p>

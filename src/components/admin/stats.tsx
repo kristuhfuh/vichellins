@@ -22,14 +22,18 @@ export function BarList({ items, empty }: { items: BarItem[]; empty: string }) {
   const max = Math.max(...items.map((i) => i.value), 1);
   return (
     <ul className="space-y-3">
-      {items.map((i) => (
+      {items.map((i, index) => (
         <li key={i.label}>
           <div className="flex items-baseline justify-between gap-3 text-sm">
             <span className="min-w-0 truncate text-marine-900">{i.label}</span>
             <span className="shrink-0 font-semibold tabular-nums text-marine-900">{i.display}</span>
           </div>
           <div className="mt-1.5 h-3 rounded-r-[4px] bg-transparent" role="img" aria-label={`${i.label}: ${i.display}`}>
-            <div className="h-3 rounded-r-[4px] bg-marine-700" style={{ width: `${Math.max((i.value / max) * 100, i.value > 0 ? 2 : 0)}%` }} />
+            {/* The top row gets the gold "winner" treatment; others stay brand marine. */}
+            <div
+              className={`h-3 rounded-r-[4px] ${index === 0 ? "bg-gold-400" : "bg-marine-700"}`}
+              style={{ width: `${Math.max((i.value / max) * 100, i.value > 0 ? 2 : 0)}%` }}
+            />
           </div>
           {i.sub && <p className="mt-1 text-xs text-muted">{i.sub}</p>}
         </li>

@@ -57,15 +57,28 @@ export default async function DashboardPage({ searchParams }: PageProps<"/admin"
       {params.denied && <Notice tone="gold">You don&apos;t have access to that page.</Notice>}
 
       <section aria-label="Needs attention" className="mb-6 grid gap-3 @min-[34rem]:grid-cols-2 @min-[54rem]:grid-cols-4">
-        {[
-          { label: "Waiting for you to confirm", value: d.awaiting_confirmation, href: "/admin/orders?status=pending" },
-          { label: "Ready to pack or send", value: d.awaiting_dispatch, href: "/admin/orders?status=confirmed" },
-          { label: "Out for delivery", value: d.out_for_delivery, href: "/admin/orders?status=out_for_delivery" },
-          { label: "Variants running low", value: d.low_stock.length, href: "/admin/inventory?show=low" },
-        ].map((t) => (
-          <Link key={t.label} href={t.href} className="rounded-2xl border border-line bg-white p-4 hover:border-marine-700">
-            <p className="text-2xl font-semibold text-marine-900">{t.value}</p>
-            <p className="text-sm text-muted">{t.label}</p>
+        {([
+          // Gold = acts you own; marine = in-flight work; danger-when-nonzero = low stock.
+          { label: "Waiting for you to confirm", value: d.awaiting_confirmation, href: "/admin/orders?status=pending", tone: "gold" as const },
+          { label: "Ready to pack or send", value: d.awaiting_dispatch, href: "/admin/orders?status=confirmed", tone: "marine" as const },
+          { label: "Out for delivery", value: d.out_for_delivery, href: "/admin/orders?status=out_for_delivery", tone: "marine" as const },
+          { label: "Variants running low", value: d.low_stock.length, href: "/admin/inventory?show=low", tone: (d.low_stock.length > 0 ? "danger" : "marine") as "danger" | "marine" },
+        ]).map((t) => (
+          <Link
+            key={t.label}
+            href={t.href}
+            className={`rounded-2xl border-l-4 p-4 transition-colors ${
+              t.tone === "gold"
+                ? "border border-l-gold-400 border-y-gold-200 border-r-gold-200 bg-gold-100/50 hover:bg-gold-100"
+                : t.tone === "danger"
+                  ? "border border-l-danger-700 border-y-danger-200 border-r-danger-200 bg-danger-50 hover:bg-danger-100/70"
+                  : "border border-l-marine-700 border-y-marine-100 border-r-marine-100 bg-marine-50/60 hover:bg-marine-50"
+            }`}
+          >
+            <p className="text-2xl font-semibold tabular-nums text-marine-900">{t.value}</p>
+            <p className={`text-sm ${
+              t.tone === "gold" ? "text-gold-700" : t.tone === "danger" ? "text-danger-800" : "text-marine-800"
+            }`}>{t.label}</p>
           </Link>
         ))}
       </section>
@@ -116,7 +129,10 @@ export default async function DashboardPage({ searchParams }: PageProps<"/admin"
         </Card>
       </div>
 
-      <h2 className="mb-3 mt-8 text-base font-semibold text-marine-900">Latest orders</h2>
+      <div className="mb-4 mt-10">
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold-700">Recent activity</p>
+        <h2 className="mt-1 text-base font-semibold text-marine-900">Latest orders</h2>
+      </div>
       {d.recent_orders.length === 0 ? (
         <p className="rounded-2xl border border-dashed border-line bg-white p-8 text-center text-sm text-muted">No orders yet.</p>
       ) : (

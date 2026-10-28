@@ -64,17 +64,26 @@ export function Sidebar({ name, role }: { name: string; role: Role }) {
           <div key={g.title}>
             <p className="px-3 text-xs font-semibold uppercase tracking-wider text-marine-200">{g.title}</p>
             <ul className="mt-2 space-y-0.5">
-              {items.map((i) => (
-                <li key={i.href}>
-                  <Link
-                    href={i.href}
-                    aria-current={isActive(i.href) ? "page" : undefined}
-                    className={`block min-h-[44px] rounded-xl px-3 py-2.5 text-sm transition-colors ${isActive(i.href) ? "bg-marine-700 font-semibold text-white" : "text-marine-100 hover:bg-marine-800"}`}
-                  >
-                    {i.label}
-                  </Link>
-                </li>
-              ))}
+              {items.map((i) => {
+                const active = isActive(i.href);
+                return (
+                  <li key={i.href}>
+                    <Link
+                      href={i.href}
+                      aria-current={active ? "page" : undefined}
+                      className={`relative block min-h-[44px] rounded-xl px-3 py-2.5 text-sm transition-colors ${active ? "bg-marine-700 font-semibold text-white" : "text-marine-100 hover:bg-marine-800"}`}
+                    >
+                      {active && (
+                        <span
+                          aria-hidden="true"
+                          className="pointer-events-none absolute left-1 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-full bg-gold-400"
+                        />
+                      )}
+                      {i.label}
+                    </Link>
+                  </li>
+                );
+              })}
             </ul>
           </div>
         );
